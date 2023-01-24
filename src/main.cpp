@@ -24,12 +24,23 @@ int selectedWiFi = 0;
 
 // Save some element references for direct access
 //<Save_References !Start!>
+gslc_tsElemRef* Sroda             = NULL;
 gslc_tsElemRef* WIFI1             = NULL;
 gslc_tsElemRef* WIFI2             = NULL;
 gslc_tsElemRef* WIFI3             = NULL;
 gslc_tsElemRef* WIFI4             = NULL;
 gslc_tsElemRef* WIFI5             = NULL;
 gslc_tsElemRef* m_AIRQ            = NULL;
+gslc_tsElemRef* m_ALARM_HOUR      = NULL;
+gslc_tsElemRef* m_ALARM_MIN       = NULL;
+gslc_tsElemRef* m_ALARM_TOGGLE    = NULL;
+gslc_tsElemRef* m_CHECK_CZW       = NULL;
+gslc_tsElemRef* m_CHECK_ND        = NULL;
+gslc_tsElemRef* m_CHECK_PON       = NULL;
+gslc_tsElemRef* m_CHECK_PT        = NULL;
+gslc_tsElemRef* m_CHECK_SB        = NULL;
+gslc_tsElemRef* m_CHECK_SR        = NULL;
+gslc_tsElemRef* m_CHECK_WT        = NULL;
 gslc_tsElemRef* m_Conn_Status     = NULL;
 gslc_tsElemRef* m_DATE            = NULL;
 gslc_tsElemRef* m_DAY             = NULL;
@@ -42,7 +53,10 @@ gslc_tsElemRef* m_SUNRISE         = NULL;
 gslc_tsElemRef* m_SUNSET          = NULL;
 gslc_tsElemRef* m_TEMP            = NULL;
 gslc_tsElemRef* m_TIME            = NULL;
+gslc_tsElemRef* m_alarmList       = NULL;
 gslc_tsElemRef* m_pElemInTxt1     = NULL;
+gslc_tsElemRef* m_pListSlider1    = NULL;
+gslc_tsElemRef* m_pElemKeyPadNum  = NULL;
 gslc_tsElemRef* m_pElemKeyPadAlpha= NULL;
 //<Save_References !End!>
 
@@ -86,22 +100,27 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       break;
     case E_ELEM_WIFI1:
       selectedWiFi = 0;
+      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
       gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
       break;
     case E_ELEM_WIFI2:
       selectedWiFi = 1;
+      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
       gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
       break;
     case E_ELEM_WIFI3:
       selectedWiFi = 2;
+      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
       gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
       break;
     case E_ELEM_WIFI4:
       selectedWiFi = 3;
+      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
       gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
       break;
     case E_ELEM_WIFI5:
       selectedWiFi = 4;
+      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
       gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
       break;
     case E_BT_WIFI_REFRESH:
@@ -110,9 +129,13 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
     case E_ELEM_BTN15:
       gslc_SetPageCur(&m_gui, E_PG_MAIN);
       break;
-    case E_ELEM_BTN16:
-      connectToWiFi(selectedWiFi);
-      break;
+      case E_EDIT_ALARM:
+        gslc_SetPageCur(&m_gui, E_PG_EDIT_ALARM);
+        break;
+      case E_ELEM_BTN16:
+        connectToWiFi(selectedWiFi);
+        gslc_PopupShow(&m_gui, E_PG_WIFI_STATUS, true);
+        break;
     case E_ELEM_BTN17:
       gslc_SetPageCur(&m_gui, E_PG_WIFI);
       break;
@@ -123,6 +146,26 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       case E_ELEM_BTN19:
         gslc_PopupHide(&m_gui);
         break;
+      case E_ELEM_BTN24:
+        gslc_SetPageCur(&m_gui, E_ALARMS);
+        break;
+      case E_ELEM_BTN25:
+        gslc_SetPageCur(&m_gui, E_ALARMS);
+        break;
+      case E_ELEM_NUMINPUT3:
+        // Clicked on edit field, so show popup box and associate with this text field
+        gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadNum, E_POP_KEYPAD_NUM, m_ALARM_HOUR);
+        break;
+      case E_ELEM_NUMINPUT4:
+        // Clicked on edit field, so show popup box and associate with this text field
+        gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadNum, E_POP_KEYPAD_NUM, m_ALARM_MIN);
+        break;
+      case E_ELEM_TOGGLE2:
+        // TODO Add code for Toggle button ON/OFF state
+        if (gslc_ElemXTogglebtnGetState(&m_gui, m_ALARM_TOGGLE)) {
+          ;
+        }
+        break;
 //<Button Enums !End!>
     default:
       break;
@@ -130,8 +173,44 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
   }
   return true;
 }
-//<Checkbox Callback !Start!>
-//<Checkbox Callback !End!>
+// Checkbox / radio callbacks
+// - Creating a callback function is optional, but doing so enables you to
+//   detect changes in the state of the elements.
+bool CbCheckbox(void* pvGui, void* pvElemRef, int16_t nSelId, bool bState)
+{
+  gslc_tsGui*     pGui      = (gslc_tsGui*)(pvGui);
+  gslc_tsElemRef* pElemRef  = (gslc_tsElemRef*)(pvElemRef);
+  gslc_tsElem*    pElem     = gslc_GetElemFromRef(pGui,pElemRef);
+  if (pElemRef == NULL) {
+    return false;
+  }
+  
+  boolean bChecked = gslc_ElemXCheckboxGetState(pGui,pElemRef);
+
+  // Determine which element issued the callback
+  switch (pElem->nId) {
+//<Checkbox Enums !Start!>
+    case E_ELEM_CHECK9:
+      break;
+    case E_ELEM_CHECK16:
+      break;
+    case E_ELEM_CHECK17:
+      break;
+    case E_ELEM_CHECK18:
+      break;
+    case E_ELEM_CHECK19:
+      break;
+    case E_ELEM_CHECK20:
+      break;
+    case E_ELEM_CHECK21:
+      break;
+
+//<Checkbox Enums !End!>
+    default:
+      break;
+  } // switch
+  return true;
+}
 // KeyPad Input Ready callback
 bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData)
 {
@@ -152,6 +231,14 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData)
       gslc_PopupHide(&m_gui);
       break;
 
+      case E_ELEM_NUMINPUT3:
+        gslc_ElemXKeyPadInputGet(pGui, m_ALARM_HOUR, pvData);
+        gslc_PopupHide(&m_gui);
+        break;
+      case E_ELEM_NUMINPUT4:
+        gslc_ElemXKeyPadInputGet(pGui, m_ALARM_MIN, pvData);
+        gslc_PopupHide(&m_gui);
+        break;
 //<Keypad Enums !End!>
     default:
       break;
@@ -165,12 +252,58 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData)
 }
 //<Spinner Callback !Start!>
 //<Spinner Callback !End!>
-//<Listbox Callback !Start!>
-//<Listbox Callback !End!>
+bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId)
+{
+  gslc_tsGui*     pGui     = (gslc_tsGui*)(pvGui);
+  gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
+  gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui, pElemRef);
+  char            acTxt[MAX_STR + 1];
+  
+  if (pElemRef == NULL) {
+    return false;
+  }
+
+  // From the element's ID we can determine which listbox was active.
+  switch (pElem->nId) {
+//<Listbox Enums !Start!>
+    case E_ELEM_LISTBOX1:
+      if (nSelId != XLISTBOX_SEL_NONE) {
+        gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);
+      }
+      break;
+
+//<Listbox Enums !End!>
+    default:
+      break;
+  }
+  return true;
+}
 //<Draw Callback !Start!>
 //<Draw Callback !End!>
-//<Slider Callback !Start!>
-//<Slider Callback !End!>
+
+// Callback function for when a slider's position has been updated
+bool CbSlidePos(void* pvGui,void* pvElemRef,int16_t nPos)
+{
+  gslc_tsGui*     pGui     = (gslc_tsGui*)(pvGui);
+  gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
+  gslc_tsElem*    pElem    = gslc_GetElemFromRef(pGui,pElemRef);
+  int16_t         nVal;
+
+  // From the element's ID we can determine which slider was updated.
+  switch (pElem->nId) {
+//<Slider Enums !Start!>
+    case E_LISTSCROLL1:
+      // Fetch the slider position
+      nVal = gslc_ElemXSliderGetPos(pGui,m_pListSlider1);
+      break;
+
+//<Slider Enums !End!>
+    default:
+      break;
+  }
+
+  return true;
+}
 //<Tick Callback !Start!>
 //<Tick Callback !End!>
 

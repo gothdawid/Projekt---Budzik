@@ -175,22 +175,14 @@ bool connectToWiFi(int index) {
         timeout++;
         if (timeout == 5) {
             return false;
+            gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Error");
             Serial.println("Nie udało się połączyć z siecią WiFi");
         }
     }
     Serial.println("Połączono z siecią WiFi");
-    Serial.println(WiFi.localIP());
-    Serial.println(WiFi.gatewayIP());
-    Serial.println(WiFi.subnetMask());
-    Serial.println(WiFi.dnsIP());
-    Serial.println(WiFi.macAddress());
-    Serial.println(WiFi.RSSI());
-    Serial.println(WiFi.SSID());
-    Serial.println(WiFi.BSSIDstr());
-    Serial.println(WiFi.channel());
-    Serial.println(WiFi.softAPIP());
-    Serial.println(WiFi.softAPmacAddress());
-    Serial.println(WiFi.softAPgetStationNum());;
+    gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Połączono");
+    gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID().c_str());
+    gslc_ElemSetTxtStr(&m_gui, m_IP, WiFi.localIP().toString().c_str());
     connectedWiFi = "ssid";
     WiFiPassword = "password";
     return true;

@@ -21,7 +21,12 @@
 // Include any extended elements
 //<Includes !Start!>
 // Include extended elements
+#include "elem/XCheckbox.h"
 #include "elem/XKeyPad_Alpha.h"
+#include "elem/XKeyPad_Num.h"
+#include "elem/XListbox.h"
+#include "elem/XSlider.h"
+#include "elem/XTogglebtn.h"
 
 // Ensure optional features are enabled in the configuration
 //<Includes !End!>
@@ -51,20 +56,28 @@
 // ------------------------------------------------
 //<Enum !Start!>
 enum {E_PG_MAIN,E_PG_SETTINGS,E_PG_WIFI,E_ALARMS,E_PG_PASSWORD
-      ,E_PG_WIFI_STATUS,E_POP_KEYPAD_ALPHA};
+      ,E_PG_WIFI_STATUS,E_PG_EDIT_ALARM,E_POP_KEYPAD_NUM
+      ,E_POP_KEYPAD_ALPHA};
 enum {E_BT_WIFI_REFRESH,E_Conn_Status,E_DATE,E_DAY,E_DRAW_LINE1
-      ,E_ELEM_AIRQ,E_ELEM_BOX1,E_ELEM_BOX10,E_ELEM_BOX2,E_ELEM_BOX3
-      ,E_ELEM_BOX4,E_ELEM_BOX5,E_ELEM_BOX6,E_ELEM_BOX8,E_ELEM_BOX9
-      ,E_ELEM_BTN1,E_ELEM_BTN15,E_ELEM_BTN16,E_ELEM_BTN17,E_ELEM_BTN19
-      ,E_ELEM_BTN2,E_ELEM_BTN3,E_ELEM_BTN4,E_ELEM_BTN5,E_ELEM_DOWN
-      ,E_ELEM_HUM,E_ELEM_PRESSURE,E_ELEM_SUNRISE,E_ELEM_SUNSET
-      ,E_ELEM_TEMP,E_ELEM_TEXT18,E_ELEM_TEXT19,E_ELEM_TEXT4
-      ,E_ELEM_TEXT5,E_ELEM_TEXT6,E_ELEM_TEXTINPUT1,E_ELEM_UP
-      ,E_ELEM_WIFI1,E_ELEM_WIFI2,E_ELEM_WIFI3,E_ELEM_WIFI4,E_ELEM_WIFI5
-      ,E_SECONDS,E_TIME,E_ELEM_KEYPAD_ALPHA};
+      ,E_EDIT_ALARM,E_ELEM_AIRQ,E_ELEM_BOX1,E_ELEM_BOX10,E_ELEM_BOX12
+      ,E_ELEM_BOX2,E_ELEM_BOX3,E_ELEM_BOX4,E_ELEM_BOX5,E_ELEM_BOX6
+      ,E_ELEM_BOX8,E_ELEM_BOX9,E_ELEM_BTN1,E_ELEM_BTN15,E_ELEM_BTN16
+      ,E_ELEM_BTN17,E_ELEM_BTN19,E_ELEM_BTN2,E_ELEM_BTN24,E_ELEM_BTN25
+      ,E_ELEM_BTN3,E_ELEM_BTN4,E_ELEM_BTN5,E_ELEM_CHECK16
+      ,E_ELEM_CHECK17,E_ELEM_CHECK18,E_ELEM_CHECK19,E_ELEM_CHECK20
+      ,E_ELEM_CHECK21,E_ELEM_CHECK9,E_ELEM_DOWN,E_ELEM_HUM
+      ,E_ELEM_LISTBOX1,E_ELEM_NUMINPUT3,E_ELEM_NUMINPUT4
+      ,E_ELEM_PRESSURE,E_ELEM_SUNRISE,E_ELEM_SUNSET,E_ELEM_TEMP
+      ,E_ELEM_TEXT18,E_ELEM_TEXT19,E_ELEM_TEXT20,E_ELEM_TEXT28
+      ,E_ELEM_TEXT29,E_ELEM_TEXT30,E_ELEM_TEXT31,E_ELEM_TEXT32
+      ,E_ELEM_TEXT33,E_ELEM_TEXT34,E_ELEM_TEXT35,E_ELEM_TEXT4
+      ,E_ELEM_TEXT5,E_ELEM_TEXT6,E_ELEM_TEXTINPUT1,E_ELEM_TOGGLE2
+      ,E_ELEM_UP,E_ELEM_WIFI1,E_ELEM_WIFI2,E_ELEM_WIFI3,E_ELEM_WIFI4
+      ,E_ELEM_WIFI5,E_LISTSCROLL1,E_SECONDS,E_TIME,E_ELEM_KEYPAD_NUM
+      ,E_ELEM_KEYPAD_ALPHA};
 // Must use separate enum for fonts with MAX_FONT at end to use gslc_FontSet.
-enum {E_BUILTIN10X16,E_BUILTIN5X8,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT
-      ,E_NOTOLATIN1_36PT,MAX_FONT};
+enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN20X32,E_BUILTIN5X8
+      ,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT,E_NOTOLATIN1_36PT,MAX_FONT};
 //<Enum !End!>
 
 // ------------------------------------------------
@@ -75,7 +88,7 @@ enum {E_BUILTIN10X16,E_BUILTIN5X8,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT
 // Define the maximum number of elements and pages
 // ------------------------------------------------
 //<ElementDefines !Start!>
-#define MAX_PAGE                7
+#define MAX_PAGE                9
 
 #define MAX_ELEM_PG_MAIN 17 // # Elems total on page
 #define MAX_ELEM_PG_MAIN_RAM MAX_ELEM_PG_MAIN // # Elems in RAM
@@ -86,7 +99,7 @@ enum {E_BUILTIN10X16,E_BUILTIN5X8,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT
 #define MAX_ELEM_PG_WIFI 10 // # Elems total on page
 #define MAX_ELEM_PG_WIFI_RAM MAX_ELEM_PG_WIFI // # Elems in RAM
 
-#define MAX_ELEM_ALARMS 2 // # Elems total on page
+#define MAX_ELEM_ALARMS 6 // # Elems total on page
 #define MAX_ELEM_ALARMS_RAM MAX_ELEM_ALARMS // # Elems in RAM
 
 #define MAX_ELEM_PG_PASSWORD 9 // # Elems total on page
@@ -94,6 +107,9 @@ enum {E_BUILTIN10X16,E_BUILTIN5X8,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT
 
 #define MAX_ELEM_PG_WIFI_STATUS 3 // # Elems total on page
 #define MAX_ELEM_PG_WIFI_STATUS_RAM MAX_ELEM_PG_WIFI_STATUS // # Elems in RAM
+
+#define MAX_ELEM_PG_EDIT_ALARM 22 // # Elems total on page
+#define MAX_ELEM_PG_EDIT_ALARM_RAM MAX_ELEM_PG_EDIT_ALARM // # Elems in RAM
 //<ElementDefines !End!>
 
 // ------------------------------------------------
@@ -117,9 +133,26 @@ gslc_tsElem                     m_asPage5Elem[MAX_ELEM_PG_PASSWORD_RAM];
 gslc_tsElemRef                  m_asPage5ElemRef[MAX_ELEM_PG_PASSWORD];
 gslc_tsElem                     m_asPopup1Elem[MAX_ELEM_PG_WIFI_STATUS_RAM];
 gslc_tsElemRef                  m_asPopup1ElemRef[MAX_ELEM_PG_WIFI_STATUS];
+gslc_tsElem                     m_asPage6Elem[MAX_ELEM_PG_EDIT_ALARM_RAM];
+gslc_tsElemRef                  m_asPage6ElemRef[MAX_ELEM_PG_EDIT_ALARM];
+gslc_tsElem                     m_asKeypadNumElem[1];
+gslc_tsElemRef                  m_asKeypadNumElemRef[1];
 gslc_tsElem                     m_asKeypadAlphaElem[1];
 gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
+gslc_tsXKeyPad                  m_sKeyPadNum;
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
+gslc_tsXListbox                 m_sListbox1;
+// - Note that XLISTBOX_BUF_OH_R is extra required per item
+char                            m_acListboxBuf1[40 + XLISTBOX_BUF_OH_R];
+gslc_tsXSlider                  m_sListScroll1;
+gslc_tsXTogglebtn               m_asXToggle2;
+gslc_tsXCheckbox                m_asXCheck9;
+gslc_tsXCheckbox                m_asXCheck16;
+gslc_tsXCheckbox                m_asXCheck17;
+gslc_tsXCheckbox                m_asXCheck18;
+gslc_tsXCheckbox                m_asXCheck19;
+gslc_tsXCheckbox                m_asXCheck20;
+gslc_tsXCheckbox                m_asXCheck21;
 
 #define MAX_STR                 100
 
@@ -131,12 +164,23 @@ gslc_tsXKeyPad                  m_sKeyPadAlpha;
 
 // Element References for direct access
 //<Extern_References !Start!>
+extern gslc_tsElemRef* Sroda;
 extern gslc_tsElemRef* WIFI1;
 extern gslc_tsElemRef* WIFI2;
 extern gslc_tsElemRef* WIFI3;
 extern gslc_tsElemRef* WIFI4;
 extern gslc_tsElemRef* WIFI5;
 extern gslc_tsElemRef* m_AIRQ;
+extern gslc_tsElemRef* m_ALARM_HOUR;
+extern gslc_tsElemRef* m_ALARM_MIN;
+extern gslc_tsElemRef* m_ALARM_TOGGLE;
+extern gslc_tsElemRef* m_CHECK_CZW;
+extern gslc_tsElemRef* m_CHECK_ND;
+extern gslc_tsElemRef* m_CHECK_PON;
+extern gslc_tsElemRef* m_CHECK_PT;
+extern gslc_tsElemRef* m_CHECK_SB;
+extern gslc_tsElemRef* m_CHECK_SR;
+extern gslc_tsElemRef* m_CHECK_WT;
 extern gslc_tsElemRef* m_Conn_Status;
 extern gslc_tsElemRef* m_DATE;
 extern gslc_tsElemRef* m_DAY;
@@ -149,7 +193,10 @@ extern gslc_tsElemRef* m_SUNRISE;
 extern gslc_tsElemRef* m_SUNSET;
 extern gslc_tsElemRef* m_TEMP;
 extern gslc_tsElemRef* m_TIME;
+extern gslc_tsElemRef* m_alarmList;
 extern gslc_tsElemRef* m_pElemInTxt1;
+extern gslc_tsElemRef* m_pListSlider1;
+extern gslc_tsElemRef* m_pElemKeyPadNum;
 extern gslc_tsElemRef* m_pElemKeyPadAlpha;
 //<Extern_References !End!>
 
@@ -182,6 +229,8 @@ void InitGUIslice_gen()
   // ------------------------------------------------
 //<Load_Fonts !Start!>
     if (!gslc_FontSet(&m_gui,E_BUILTIN10X16,GSLC_FONTREF_PTR,NULL,2)) { return; }
+    if (!gslc_FontSet(&m_gui,E_BUILTIN15X24,GSLC_FONTREF_PTR,NULL,3)) { return; }
+    if (!gslc_FontSet(&m_gui,E_BUILTIN20X32,GSLC_FONTREF_PTR,NULL,4)) { return; }
     if (!gslc_FontSet(&m_gui,E_BUILTIN5X8,GSLC_FONTREF_PTR,NULL,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOLATIN1_10PT,GSLC_FONTREF_PTR,&NotoLatin1_10pt,1)) { return; }
     if (!gslc_FontSet(&m_gui,E_NOTOLATIN1_12PT,GSLC_FONTREF_PTR,&NotoLatin1_12pt,1)) { return; }
@@ -195,6 +244,8 @@ void InitGUIslice_gen()
   gslc_PageAdd(&m_gui,E_ALARMS,m_asPage4Elem,MAX_ELEM_ALARMS_RAM,m_asPage4ElemRef,MAX_ELEM_ALARMS);
   gslc_PageAdd(&m_gui,E_PG_PASSWORD,m_asPage5Elem,MAX_ELEM_PG_PASSWORD_RAM,m_asPage5ElemRef,MAX_ELEM_PG_PASSWORD);
   gslc_PageAdd(&m_gui,E_PG_WIFI_STATUS,m_asPopup1Elem,MAX_ELEM_PG_WIFI_STATUS_RAM,m_asPopup1ElemRef,MAX_ELEM_PG_WIFI_STATUS);
+  gslc_PageAdd(&m_gui,E_PG_EDIT_ALARM,m_asPage6Elem,MAX_ELEM_PG_EDIT_ALARM_RAM,m_asPage6ElemRef,MAX_ELEM_PG_EDIT_ALARM);
+  gslc_PageAdd(&m_gui,E_POP_KEYPAD_NUM,m_asKeypadNumElem,1,m_asKeypadNumElemRef,1);  // KeyPad
   gslc_PageAdd(&m_gui,E_POP_KEYPAD_ALPHA,m_asKeypadAlphaElem,1,m_asKeypadAlphaElemRef,1);  // KeyPad
 
   // NOTE: The current page defaults to the first page added. Here we explicitly
@@ -397,6 +448,38 @@ void InitGUIslice_gen()
   // create E_ELEM_BTN15 button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN15,E_ALARMS,
     (gslc_tsRect){240,185,60,40},(char*)"Cofnij",0,E_BUILTIN5X8,&CbBtnCommon);
+   
+  // Create wrapping box for listbox E_ELEM_LISTBOX1 and scrollbar
+  pElemRef = gslc_ElemCreateBox(&m_gui,GSLC_ID_AUTO,E_ALARMS,(gslc_tsRect){20,40,250,120});
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_BLACK);
+  
+  // Create listbox
+  pElemRef = gslc_ElemXListboxCreate(&m_gui,E_ELEM_LISTBOX1,E_ALARMS,&m_sListbox1,
+    (gslc_tsRect){20+2,40+4,250-4-30,120-7},E_BUILTIN5X8,
+    (uint8_t*)&m_acListboxBuf1,sizeof(m_acListboxBuf1),0);
+  gslc_ElemXListboxSetSize(&m_gui, pElemRef, 5, 1); // 5 rows, 1 columns
+  gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 15);
+  gslc_ElemSetTxtMarginXY(&m_gui, pElemRef, 5, 5);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_BLACK);
+  gslc_ElemXListboxSetSelFunc(&m_gui, pElemRef, &CbListbox);
+  gslc_ElemXListboxItemsSetGap(&m_gui, pElemRef, 5,GSLC_COL_BLACK);
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ALL 08:00 ON");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "PN  09:00 ON");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "WT  09:00 OFF");
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  m_alarmList = pElemRef;
+
+  // Create vertical scrollbar for listbox
+  pElemRef = gslc_ElemXSliderCreate(&m_gui,E_LISTSCROLL1,E_ALARMS,&m_sListScroll1,
+          (gslc_tsRect){20+250-2-30,40+4,30,120-8},0,8,0,5,true);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLUE);
+  gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
+  m_pListSlider1 = pElemRef;
+  
+  // create E_EDIT_ALARM button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_EDIT_ALARM,E_ALARMS,
+    (gslc_tsRect){170,185,60,40},(char*)"Edytuj",0,E_BUILTIN5X8,&CbBtnCommon);
 
   // -----------------------------------
   // PAGE: E_PG_PASSWORD
@@ -449,8 +532,9 @@ void InitGUIslice_gen()
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   
   // Create E_ELEM_TEXT19 text label
+  static char m_sIP[14] = "";
   pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT19,E_PG_PASSWORD,(gslc_tsRect){80,90,49,18},
-    (char*)"",0,E_BUILTIN10X16);
+    m_sIP,14,E_BUILTIN10X16);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   m_IP = pElemRef;
 
@@ -464,8 +548,9 @@ void InitGUIslice_gen()
   gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_GRAY,GSLC_COL_GRAY_DK1,GSLC_COL_GRAY_DK1);
   
   // Create E_Conn_Status text label
+  static char m_sWIFI_STATUS[30] = "";
   pElemRef = gslc_ElemCreateTxt(&m_gui,E_Conn_Status,E_PG_WIFI_STATUS,(gslc_tsRect){40,110,240,18},
-    (char*)"Error",0,E_NOTOLATIN1_12PT);
+    m_sWIFI_STATUS,30,E_NOTOLATIN1_12PT);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   m_Conn_Status = pElemRef;
@@ -473,6 +558,160 @@ void InitGUIslice_gen()
   // create E_ELEM_BTN19 button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN19,E_PG_WIFI_STATUS,
     (gslc_tsRect){210,150,60,40},(char*)"Cofnij",0,E_BUILTIN5X8,&CbBtnCommon);
+
+  // -----------------------------------
+  // PAGE: E_PG_EDIT_ALARM
+  
+   
+  // Create E_ELEM_BOX12 box
+  pElemRef = gslc_ElemCreateBox(&m_gui,E_ELEM_BOX12,E_PG_EDIT_ALARM,(gslc_tsRect){24,24,272,192});
+  gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_GRAY,GSLC_COL_GRAY_DK1,GSLC_COL_GRAY_DK1);
+  
+  // create E_ELEM_BTN24 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN24,E_PG_EDIT_ALARM,
+    (gslc_tsRect){230,170,60,40},(char*)"Cofnij",0,E_BUILTIN5X8,&CbBtnCommon);
+  
+  // create E_ELEM_BTN25 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN25,E_PG_EDIT_ALARM,
+    (gslc_tsRect){160,170,60,40},(char*)"Zapisz",0,E_BUILTIN5X8,&CbBtnCommon);
+  
+  // Create E_ELEM_NUMINPUT3 numeric input field
+  static char m_sInputNumber3[3] = "";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_NUMINPUT3,E_PG_EDIT_ALARM,(gslc_tsRect){102,50,47,26},
+    (char*)m_sInputNumber3,3,E_BUILTIN15X24);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  m_ALARM_HOUR = pElemRef;
+  
+  // Create E_ELEM_NUMINPUT4 numeric input field
+  static char m_sInputNumber4[3] = "";
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_NUMINPUT4,E_PG_EDIT_ALARM,(gslc_tsRect){167,50,47,26},
+    (char*)m_sInputNumber4,3,E_BUILTIN15X24);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetTxtMargin(&m_gui,pElemRef,5);
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  gslc_ElemSetClickEn(&m_gui, pElemRef, true);
+  gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
+  m_ALARM_MIN = pElemRef;
+  
+  // Create toggle button E_ELEM_TOGGLE2
+  pElemRef = gslc_ElemXTogglebtnCreate(&m_gui,E_ELEM_TOGGLE2,E_PG_EDIT_ALARM,&m_asXToggle2,
+    (gslc_tsRect){230,50,40,26},GSLC_COL_GRAY_DK2,GSLC_COL_GREEN_DK3,GSLC_COL_GRAY_LT3,
+    true,false,&CbBtnCommon);
+  m_ALARM_TOGGLE = pElemRef;
+   
+  // create checkbox E_ELEM_CHECK9
+  pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK9,E_PG_EDIT_ALARM,&m_asXCheck9,
+    (gslc_tsRect){110,80,20,20},false,GSLCX_CHECKBOX_STYLE_X,GSLC_COL_ORANGE,false);
+  gslc_ElemXCheckboxSetStateFunc(&m_gui, pElemRef, &CbCheckbox);
+  m_CHECK_PON = pElemRef;
+  
+  // Create E_ELEM_TEXT20 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT20,E_PG_EDIT_ALARM,(gslc_tsRect){30,80,73,20},
+    (char*)"Poniedzialek",0,E_BUILTIN5X8);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+   
+  // create checkbox E_ELEM_CHECK16
+  pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK16,E_PG_EDIT_ALARM,&m_asXCheck16,
+    (gslc_tsRect){110,105,20,20},false,GSLCX_CHECKBOX_STYLE_X,GSLC_COL_ORANGE,false);
+  gslc_ElemXCheckboxSetStateFunc(&m_gui, pElemRef, &CbCheckbox);
+  m_CHECK_WT = pElemRef;
+  
+  // Create E_ELEM_TEXT28 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT28,E_PG_EDIT_ALARM,(gslc_tsRect){30,105,73,20},
+    (char*)"Wtorek",0,E_BUILTIN5X8);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+   
+  // create checkbox E_ELEM_CHECK17
+  pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK17,E_PG_EDIT_ALARM,&m_asXCheck17,
+    (gslc_tsRect){110,130,20,20},false,GSLCX_CHECKBOX_STYLE_X,GSLC_COL_ORANGE,false);
+  gslc_ElemXCheckboxSetStateFunc(&m_gui, pElemRef, &CbCheckbox);
+  m_CHECK_SR = pElemRef;
+  
+  // Create E_ELEM_TEXT29 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT29,E_PG_EDIT_ALARM,(gslc_tsRect){30,130,73,20},
+    (char*)"Sroda",0,E_BUILTIN5X8);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  Sroda = pElemRef;
+   
+  // create checkbox E_ELEM_CHECK18
+  pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK18,E_PG_EDIT_ALARM,&m_asXCheck18,
+    (gslc_tsRect){218,81,20,20},false,GSLCX_CHECKBOX_STYLE_X,GSLC_COL_ORANGE,false);
+  gslc_ElemXCheckboxSetStateFunc(&m_gui, pElemRef, &CbCheckbox);
+  m_CHECK_PT = pElemRef;
+  
+  // Create E_ELEM_TEXT30 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT30,E_PG_EDIT_ALARM,(gslc_tsRect){138,81,73,20},
+    (char*)"Piatek",0,E_BUILTIN5X8);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+   
+  // create checkbox E_ELEM_CHECK19
+  pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK19,E_PG_EDIT_ALARM,&m_asXCheck19,
+    (gslc_tsRect){217,106,20,20},false,GSLCX_CHECKBOX_STYLE_X,GSLC_COL_ORANGE,false);
+  gslc_ElemXCheckboxSetStateFunc(&m_gui, pElemRef, &CbCheckbox);
+  m_CHECK_SB = pElemRef;
+  
+  // Create E_ELEM_TEXT31 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT31,E_PG_EDIT_ALARM,(gslc_tsRect){137,106,73,20},
+    (char*)"Sobota",0,E_BUILTIN5X8);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_ORANGE);
+   
+  // create checkbox E_ELEM_CHECK20
+  pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK20,E_PG_EDIT_ALARM,&m_asXCheck20,
+    (gslc_tsRect){217,133,20,20},false,GSLCX_CHECKBOX_STYLE_X,GSLC_COL_ORANGE,false);
+  gslc_ElemXCheckboxSetStateFunc(&m_gui, pElemRef, &CbCheckbox);
+  m_CHECK_ND = pElemRef;
+  
+  // Create E_ELEM_TEXT32 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT32,E_PG_EDIT_ALARM,(gslc_tsRect){137,133,73,20},
+    (char*)"Niedziela",0,E_BUILTIN5X8);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_ORANGE);
+   
+  // create checkbox E_ELEM_CHECK21
+  pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK21,E_PG_EDIT_ALARM,&m_asXCheck21,
+    (gslc_tsRect){111,156,20,20},false,GSLCX_CHECKBOX_STYLE_X,GSLC_COL_ORANGE,false);
+  gslc_ElemXCheckboxSetStateFunc(&m_gui, pElemRef, &CbCheckbox);
+  m_CHECK_CZW = pElemRef;
+  
+  // Create E_ELEM_TEXT33 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT33,E_PG_EDIT_ALARM,(gslc_tsRect){31,156,73,20},
+    (char*)"Czwartek",0,E_BUILTIN5X8);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  
+  // Create E_ELEM_TEXT34 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT34,E_PG_EDIT_ALARM,(gslc_tsRect){117,28,85,18},
+    (char*)"GODZINA",0,E_BUILTIN10X16);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_GREEN_LT1);
+  
+  // Create E_ELEM_TEXT35 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT35,E_PG_EDIT_ALARM,(gslc_tsRect){147,48,25,34},
+    (char*)":",0,E_BUILTIN20X32);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+
+  // -----------------------------------
+  // PAGE: E_POP_KEYPAD_NUM
+  
+  static gslc_tsXKeyPadCfg_Num sCfg;
+  sCfg = gslc_ElemXKeyPadCfgInit_Num();
+  gslc_ElemXKeyPadCfgSetFloatEn_Num(&sCfg, true);
+  gslc_ElemXKeyPadCfgSetSignEn_Num(&sCfg, true);
+  m_pElemKeyPadNum = gslc_ElemXKeyPadCreate_Num(&m_gui, E_ELEM_KEYPAD_NUM, E_POP_KEYPAD_NUM,
+    &m_sKeyPadNum, 65, 80, E_BUILTIN5X8, &sCfg);
+  gslc_ElemXKeyPadValSetCb(&m_gui, m_pElemKeyPadNum, &CbKeypad);
 
   // -----------------------------------
   // PAGE: E_POP_KEYPAD_ALPHA
