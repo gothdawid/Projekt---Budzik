@@ -70,11 +70,11 @@ enum {E_BT_WIFI_REFRESH,E_Conn_Status,E_DATE,E_DAY,E_DRAW_LINE1
       ,E_ELEM_PRESSURE,E_ELEM_SUNRISE,E_ELEM_SUNSET,E_ELEM_TEMP
       ,E_ELEM_TEXT18,E_ELEM_TEXT19,E_ELEM_TEXT20,E_ELEM_TEXT28
       ,E_ELEM_TEXT29,E_ELEM_TEXT30,E_ELEM_TEXT31,E_ELEM_TEXT32
-      ,E_ELEM_TEXT33,E_ELEM_TEXT34,E_ELEM_TEXT35,E_ELEM_TEXT4
-      ,E_ELEM_TEXT5,E_ELEM_TEXT6,E_ELEM_TEXTINPUT1,E_ELEM_TOGGLE2
-      ,E_ELEM_UP,E_ELEM_WIFI1,E_ELEM_WIFI2,E_ELEM_WIFI3,E_ELEM_WIFI4
-      ,E_ELEM_WIFI5,E_LISTSCROLL1,E_SECONDS,E_TIME,E_ELEM_KEYPAD_NUM
-      ,E_ELEM_KEYPAD_ALPHA};
+      ,E_ELEM_TEXT33,E_ELEM_TEXT34,E_ELEM_TEXT35,E_ELEM_TEXT36
+      ,E_ELEM_TEXT4,E_ELEM_TEXT5,E_ELEM_TEXT6,E_ELEM_TEXTINPUT1
+      ,E_ELEM_TOGGLE2,E_ELEM_UP,E_ELEM_WIFI1,E_ELEM_WIFI2,E_ELEM_WIFI3
+      ,E_ELEM_WIFI4,E_ELEM_WIFI5,E_LISTSCROLL1,E_SECONDS,E_TIME
+      ,E_ELEM_KEYPAD_NUM,E_ELEM_KEYPAD_ALPHA};
 // Must use separate enum for fonts with MAX_FONT at end to use gslc_FontSet.
 enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN20X32,E_BUILTIN5X8
       ,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT,E_NOTOLATIN1_36PT,MAX_FONT};
@@ -99,7 +99,7 @@ enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN20X32,E_BUILTIN5X8
 #define MAX_ELEM_PG_WIFI 10 // # Elems total on page
 #define MAX_ELEM_PG_WIFI_RAM MAX_ELEM_PG_WIFI // # Elems in RAM
 
-#define MAX_ELEM_ALARMS 6 // # Elems total on page
+#define MAX_ELEM_ALARMS 7 // # Elems total on page
 #define MAX_ELEM_ALARMS_RAM MAX_ELEM_ALARMS // # Elems in RAM
 
 #define MAX_ELEM_PG_PASSWORD 9 // # Elems total on page
@@ -143,7 +143,7 @@ gslc_tsXKeyPad                  m_sKeyPadNum;
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
 gslc_tsXListbox                 m_sListbox1;
 // - Note that XLISTBOX_BUF_OH_R is extra required per item
-char                            m_acListboxBuf1[40 + XLISTBOX_BUF_OH_R];
+char                            m_acListboxBuf1[133 + XLISTBOX_BUF_OH_R];
 gslc_tsXSlider                  m_sListScroll1;
 gslc_tsXTogglebtn               m_asXToggle2;
 gslc_tsXCheckbox                m_asXCheck9;
@@ -450,29 +450,34 @@ void InitGUIslice_gen()
     (gslc_tsRect){240,185,60,40},(char*)"Cofnij",0,E_BUILTIN5X8,&CbBtnCommon);
    
   // Create wrapping box for listbox E_ELEM_LISTBOX1 and scrollbar
-  pElemRef = gslc_ElemCreateBox(&m_gui,GSLC_ID_AUTO,E_ALARMS,(gslc_tsRect){20,40,250,120});
-  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_BLACK);
+  pElemRef = gslc_ElemCreateBox(&m_gui,GSLC_ID_AUTO,E_ALARMS,(gslc_tsRect){20,40,280,135});
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_TEAL);
   
   // Create listbox
   pElemRef = gslc_ElemXListboxCreate(&m_gui,E_ELEM_LISTBOX1,E_ALARMS,&m_sListbox1,
-    (gslc_tsRect){20+2,40+4,250-4-30,120-7},E_BUILTIN5X8,
+    (gslc_tsRect){20+2,40+4,280-4-30,135-7},E_BUILTIN5X8,
     (uint8_t*)&m_acListboxBuf1,sizeof(m_acListboxBuf1),0);
   gslc_ElemXListboxSetSize(&m_gui, pElemRef, 5, 1); // 5 rows, 1 columns
-  gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 15);
+  gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 21);
   gslc_ElemSetTxtMarginXY(&m_gui, pElemRef, 5, 5);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
-  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_BLACK);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_TEAL);
   gslc_ElemXListboxSetSelFunc(&m_gui, pElemRef, &CbListbox);
   gslc_ElemXListboxItemsSetGap(&m_gui, pElemRef, 5,GSLC_COL_BLACK);
   gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ALL 08:00 ON");
   gslc_ElemXListboxAddItem(&m_gui, pElemRef, "PN  09:00 ON");
   gslc_ElemXListboxAddItem(&m_gui, pElemRef, "WT  09:00 OFF");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 09:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 09:00 PN WT SR CZ PT");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 09:00 PN WT SR CZ PT SB");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "TEST");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ASD");
   gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
   m_alarmList = pElemRef;
 
   // Create vertical scrollbar for listbox
   pElemRef = gslc_ElemXSliderCreate(&m_gui,E_LISTSCROLL1,E_ALARMS,&m_sListScroll1,
-          (gslc_tsRect){20+250-2-30,40+4,30,120-8},0,8,0,5,true);
+          (gslc_tsRect){20+280-2-30,40+4,30,135-8},0,13,0,5,true);
   gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLUE);
   gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
   m_pListSlider1 = pElemRef;
@@ -480,6 +485,12 @@ void InitGUIslice_gen()
   // create E_EDIT_ALARM button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_EDIT_ALARM,E_ALARMS,
     (gslc_tsRect){170,185,60,40},(char*)"Edytuj",0,E_BUILTIN5X8,&CbBtnCommon);
+  
+  // Create E_ELEM_TEXT36 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT36,E_ALARMS,(gslc_tsRect){33,13,253,26},
+    (char*)"Lista Budzikow",0,E_BUILTIN15X24);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
 
   // -----------------------------------
   // PAGE: E_PG_PASSWORD
