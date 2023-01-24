@@ -24,23 +24,26 @@ int selectedWiFi = 0;
 
 // Save some element references for direct access
 //<Save_References !Start!>
-gslc_tsElemRef* WIFI1 = NULL;
-gslc_tsElemRef* WIFI2 = NULL;
-gslc_tsElemRef* WIFI3 = NULL;
-gslc_tsElemRef* WIFI4 = NULL;
-gslc_tsElemRef* WIFI5 = NULL;
-gslc_tsElemRef* m_AIRQ = NULL;
-gslc_tsElemRef* m_DATE = NULL;
-gslc_tsElemRef* m_DAY = NULL;
-gslc_tsElemRef* m_HUM = NULL;
-gslc_tsElemRef* m_PRESSURE = NULL;
-gslc_tsElemRef* m_SECONDS = NULL;
-gslc_tsElemRef* m_SUNRISE = NULL;
-gslc_tsElemRef* m_SUNSET = NULL;
-gslc_tsElemRef* m_TEMP = NULL;
-gslc_tsElemRef* m_TIME = NULL;
-gslc_tsElemRef* m_pElemInTxt1 = NULL;
-gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
+gslc_tsElemRef* WIFI1             = NULL;
+gslc_tsElemRef* WIFI2             = NULL;
+gslc_tsElemRef* WIFI3             = NULL;
+gslc_tsElemRef* WIFI4             = NULL;
+gslc_tsElemRef* WIFI5             = NULL;
+gslc_tsElemRef* m_AIRQ            = NULL;
+gslc_tsElemRef* m_Conn_Status     = NULL;
+gslc_tsElemRef* m_DATE            = NULL;
+gslc_tsElemRef* m_DAY             = NULL;
+gslc_tsElemRef* m_HUM             = NULL;
+gslc_tsElemRef* m_IP              = NULL;
+gslc_tsElemRef* m_PRESSURE        = NULL;
+gslc_tsElemRef* m_SECONDS         = NULL;
+gslc_tsElemRef* m_SSID_TO_CONNECT = NULL;
+gslc_tsElemRef* m_SUNRISE         = NULL;
+gslc_tsElemRef* m_SUNSET          = NULL;
+gslc_tsElemRef* m_TEMP            = NULL;
+gslc_tsElemRef* m_TIME            = NULL;
+gslc_tsElemRef* m_pElemInTxt1     = NULL;
+gslc_tsElemRef* m_pElemKeyPadAlpha= NULL;
 //<Save_References !End!>
 
 // Define debug message function
@@ -61,7 +64,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
   if (eTouch == GSLC_TOUCH_UP_IN) {
     // From the element's ID we can determine which button was pressed.
     switch (pElem->nId) {
-      //<Button Enums !Start!>
+//<Button Enums !Start!>
     case E_ELEM_BTN1:
       gslc_SetPageCur(&m_gui, E_ALARMS);
       break;
@@ -117,7 +120,10 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       // Clicked on edit field, so show popup box and associate with this text field
       gslc_ElemXKeyPadInputAsk(&m_gui, m_pElemKeyPadAlpha, E_POP_KEYPAD_ALPHA, m_pElemInTxt1);
       break;
-      //<Button Enums !End!>
+      case E_ELEM_BTN19:
+        gslc_PopupHide(&m_gui);
+        break;
+//<Button Enums !End!>
     default:
       break;
     }
@@ -140,13 +146,13 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData)
     // - If we have a popup active, pass the return value directly to
     //   the corresponding value field
     switch (nTargetElemId) {
-      //<Keypad Enums !Start!>
+//<Keypad Enums !Start!>
     case E_ELEM_TEXTINPUT1:
       gslc_ElemXKeyPadInputGet(pGui, m_pElemInTxt1, pvData);
       gslc_PopupHide(&m_gui);
       break;
 
-      //<Keypad Enums !End!>
+//<Keypad Enums !End!>
     default:
       break;
     }

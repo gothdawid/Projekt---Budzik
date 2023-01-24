@@ -51,13 +51,14 @@
 // ------------------------------------------------
 //<Enum !Start!>
 enum {E_PG_MAIN,E_PG_SETTINGS,E_PG_WIFI,E_ALARMS,E_PG_PASSWORD
-      ,E_POP_KEYPAD_ALPHA};
-enum {E_BT_WIFI_REFRESH,E_DATE,E_DAY,E_DRAW_LINE1,E_ELEM_AIRQ
-      ,E_ELEM_BOX1,E_ELEM_BOX2,E_ELEM_BOX3,E_ELEM_BOX4,E_ELEM_BOX5
-      ,E_ELEM_BOX6,E_ELEM_BOX8,E_ELEM_BOX9,E_ELEM_BTN1,E_ELEM_BTN15
-      ,E_ELEM_BTN16,E_ELEM_BTN17,E_ELEM_BTN2,E_ELEM_BTN3,E_ELEM_BTN4
-      ,E_ELEM_BTN5,E_ELEM_DOWN,E_ELEM_HUM,E_ELEM_PRESSURE
-      ,E_ELEM_SUNRISE,E_ELEM_SUNSET,E_ELEM_TEMP,E_ELEM_TEXT4
+      ,E_PG_WIFI_STATUS,E_POP_KEYPAD_ALPHA};
+enum {E_BT_WIFI_REFRESH,E_Conn_Status,E_DATE,E_DAY,E_DRAW_LINE1
+      ,E_ELEM_AIRQ,E_ELEM_BOX1,E_ELEM_BOX10,E_ELEM_BOX2,E_ELEM_BOX3
+      ,E_ELEM_BOX4,E_ELEM_BOX5,E_ELEM_BOX6,E_ELEM_BOX8,E_ELEM_BOX9
+      ,E_ELEM_BTN1,E_ELEM_BTN15,E_ELEM_BTN16,E_ELEM_BTN17,E_ELEM_BTN19
+      ,E_ELEM_BTN2,E_ELEM_BTN3,E_ELEM_BTN4,E_ELEM_BTN5,E_ELEM_DOWN
+      ,E_ELEM_HUM,E_ELEM_PRESSURE,E_ELEM_SUNRISE,E_ELEM_SUNSET
+      ,E_ELEM_TEMP,E_ELEM_TEXT18,E_ELEM_TEXT19,E_ELEM_TEXT4
       ,E_ELEM_TEXT5,E_ELEM_TEXT6,E_ELEM_TEXTINPUT1,E_ELEM_UP
       ,E_ELEM_WIFI1,E_ELEM_WIFI2,E_ELEM_WIFI3,E_ELEM_WIFI4,E_ELEM_WIFI5
       ,E_SECONDS,E_TIME,E_ELEM_KEYPAD_ALPHA};
@@ -74,7 +75,7 @@ enum {E_BUILTIN10X16,E_BUILTIN5X8,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT
 // Define the maximum number of elements and pages
 // ------------------------------------------------
 //<ElementDefines !Start!>
-#define MAX_PAGE                6
+#define MAX_PAGE                7
 
 #define MAX_ELEM_PG_MAIN 17 // # Elems total on page
 #define MAX_ELEM_PG_MAIN_RAM MAX_ELEM_PG_MAIN // # Elems in RAM
@@ -88,8 +89,11 @@ enum {E_BUILTIN10X16,E_BUILTIN5X8,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT
 #define MAX_ELEM_ALARMS 2 // # Elems total on page
 #define MAX_ELEM_ALARMS_RAM MAX_ELEM_ALARMS // # Elems in RAM
 
-#define MAX_ELEM_PG_PASSWORD 7 // # Elems total on page
+#define MAX_ELEM_PG_PASSWORD 9 // # Elems total on page
 #define MAX_ELEM_PG_PASSWORD_RAM MAX_ELEM_PG_PASSWORD // # Elems in RAM
+
+#define MAX_ELEM_PG_WIFI_STATUS 3 // # Elems total on page
+#define MAX_ELEM_PG_WIFI_STATUS_RAM MAX_ELEM_PG_WIFI_STATUS // # Elems in RAM
 //<ElementDefines !End!>
 
 // ------------------------------------------------
@@ -111,6 +115,8 @@ gslc_tsElem                     m_asPage4Elem[MAX_ELEM_ALARMS_RAM];
 gslc_tsElemRef                  m_asPage4ElemRef[MAX_ELEM_ALARMS];
 gslc_tsElem                     m_asPage5Elem[MAX_ELEM_PG_PASSWORD_RAM];
 gslc_tsElemRef                  m_asPage5ElemRef[MAX_ELEM_PG_PASSWORD];
+gslc_tsElem                     m_asPopup1Elem[MAX_ELEM_PG_WIFI_STATUS_RAM];
+gslc_tsElemRef                  m_asPopup1ElemRef[MAX_ELEM_PG_WIFI_STATUS];
 gslc_tsElem                     m_asKeypadAlphaElem[1];
 gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
@@ -131,11 +137,14 @@ extern gslc_tsElemRef* WIFI3;
 extern gslc_tsElemRef* WIFI4;
 extern gslc_tsElemRef* WIFI5;
 extern gslc_tsElemRef* m_AIRQ;
+extern gslc_tsElemRef* m_Conn_Status;
 extern gslc_tsElemRef* m_DATE;
 extern gslc_tsElemRef* m_DAY;
 extern gslc_tsElemRef* m_HUM;
+extern gslc_tsElemRef* m_IP;
 extern gslc_tsElemRef* m_PRESSURE;
 extern gslc_tsElemRef* m_SECONDS;
+extern gslc_tsElemRef* m_SSID_TO_CONNECT;
 extern gslc_tsElemRef* m_SUNRISE;
 extern gslc_tsElemRef* m_SUNSET;
 extern gslc_tsElemRef* m_TEMP;
@@ -185,6 +194,7 @@ void InitGUIslice_gen()
   gslc_PageAdd(&m_gui,E_PG_WIFI,m_asPage3Elem,MAX_ELEM_PG_WIFI_RAM,m_asPage3ElemRef,MAX_ELEM_PG_WIFI);
   gslc_PageAdd(&m_gui,E_ALARMS,m_asPage4Elem,MAX_ELEM_ALARMS_RAM,m_asPage4ElemRef,MAX_ELEM_ALARMS);
   gslc_PageAdd(&m_gui,E_PG_PASSWORD,m_asPage5Elem,MAX_ELEM_PG_PASSWORD_RAM,m_asPage5ElemRef,MAX_ELEM_PG_PASSWORD);
+  gslc_PageAdd(&m_gui,E_PG_WIFI_STATUS,m_asPopup1Elem,MAX_ELEM_PG_WIFI_STATUS_RAM,m_asPopup1ElemRef,MAX_ELEM_PG_WIFI_STATUS);
   gslc_PageAdd(&m_gui,E_POP_KEYPAD_ALPHA,m_asKeypadAlphaElem,1,m_asKeypadAlphaElemRef,1);  // KeyPad
 
   // NOTE: The current page defaults to the first page added. Here we explicitly
@@ -421,6 +431,7 @@ void InitGUIslice_gen()
     m_sSSID,30,E_BUILTIN10X16);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  m_SSID_TO_CONNECT = pElemRef;
   
   // Create E_ELEM_TEXTINPUT1 text input field
   static char m_sInputText1[12] = "";
@@ -431,6 +442,37 @@ void InitGUIslice_gen()
   gslc_ElemSetClickEn(&m_gui, pElemRef, true);
   gslc_ElemSetTouchFunc(&m_gui, pElemRef, &CbBtnCommon);
   m_pElemInTxt1 = pElemRef;
+  
+  // Create E_ELEM_TEXT18 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT18,E_PG_PASSWORD,(gslc_tsRect){40,90,37,18},
+    (char*)"IP:",0,E_BUILTIN10X16);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  
+  // Create E_ELEM_TEXT19 text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_TEXT19,E_PG_PASSWORD,(gslc_tsRect){80,90,49,18},
+    (char*)"",0,E_BUILTIN10X16);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  m_IP = pElemRef;
+
+  // -----------------------------------
+  // PAGE: E_PG_WIFI_STATUS
+  
+   
+  // Create E_ELEM_BOX10 box
+  pElemRef = gslc_ElemCreateBox(&m_gui,E_ELEM_BOX10,E_PG_WIFI_STATUS,(gslc_tsRect){40,40,240,160});
+  gslc_ElemSetRoundEn(&m_gui, pElemRef, true);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_GRAY,GSLC_COL_GRAY_DK1,GSLC_COL_GRAY_DK1);
+  
+  // Create E_Conn_Status text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_Conn_Status,E_PG_WIFI_STATUS,(gslc_tsRect){40,110,240,18},
+    (char*)"Error",0,E_NOTOLATIN1_12PT);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
+  m_Conn_Status = pElemRef;
+  
+  // create E_ELEM_BTN19 button with text label
+  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN19,E_PG_WIFI_STATUS,
+    (gslc_tsRect){210,150,60,40},(char*)"Cofnij",0,E_BUILTIN5X8,&CbBtnCommon);
 
   // -----------------------------------
   // PAGE: E_POP_KEYPAD_ALPHA
