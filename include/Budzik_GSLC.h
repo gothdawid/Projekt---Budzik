@@ -143,7 +143,7 @@ gslc_tsXKeyPad                  m_sKeyPadNum;
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
 gslc_tsXListbox                 m_sListbox1;
 // - Note that XLISTBOX_BUF_OH_R is extra required per item
-char                            m_acListboxBuf1[133 + XLISTBOX_BUF_OH_R];
+char                            m_acListboxBuf1[600 + XLISTBOX_BUF_OH_R];
 gslc_tsXSlider                  m_sListScroll1;
 gslc_tsXTogglebtn               m_asXToggle2;
 gslc_tsXCheckbox                m_asXCheck9;
@@ -457,21 +457,16 @@ void InitGUIslice_gen()
   pElemRef = gslc_ElemXListboxCreate(&m_gui,E_ELEM_LISTBOX1,E_ALARMS,&m_sListbox1,
     (gslc_tsRect){20+2,40+4,280-4-30,135-7},E_BUILTIN5X8,
     (uint8_t*)&m_acListboxBuf1,sizeof(m_acListboxBuf1),0);
-  gslc_ElemXListboxSetSize(&m_gui, pElemRef, 5, 1); // 5 rows, 1 columns
+  gslc_ElemXListboxSetSize(&m_gui, pElemRef, 15, 1); // 5 rows, 1 columns
   gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 21);
   gslc_ElemSetTxtMarginXY(&m_gui, pElemRef, 5, 5);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
   gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_TEAL);
   gslc_ElemXListboxSetSelFunc(&m_gui, pElemRef, &CbListbox);
   gslc_ElemXListboxItemsSetGap(&m_gui, pElemRef, 5,GSLC_COL_BLACK);
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ALL 08:00 ON");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "PN  09:00 ON");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "WT  09:00 OFF");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 09:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 10:00 PN WT SR CZ PT SB ND");
   gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 09:00 PN WT SR CZ PT");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 09:00 PN WT SR CZ PT SB");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "TEST");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ASD");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 99:00 PN WT SR CZ PT SB");
   gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
   m_alarmList = pElemRef;
 

@@ -188,5 +188,116 @@ bool connectToWiFi(int index) {
     return true;
 }
 
+struct s_alarm {
+    int hour;
+    int minute;
+    bool enabled;
+    bool poniedzialek;
+    bool wtorek;
+    bool sroda;
+    bool czwartek;
+    bool piatek;
+    bool sobota;
+    bool niedziela;
+};
+
+//Lista domyślnych alarmów
+s_alarm alarms[13] = {
+    {7, 0, true, true, true, true, true, true, true, true},
+    {7, 30, false, true, true, true, false, false, false, false},
+    {8, 0, true, true, true, false, false, false, false, false},
+    {8, 30, false, true, false, false, false, false, false, false},
+    {9, 0, true, false, false, false, false, true, true, true},
+    {9, 30, false, false, false, false, false, false, false, false},
+    {10, 0, true, false, false, false, false, false, false, false},
+    {10, 30, false, false, false, false, false, false, false, false},
+    {11, 0, true, false, false, false, false, false, false, false},
+    {11, 30, false, false, false, false, false, false, false, false},
+    {12, 0, true, false, false, false, false, false, false, false},
+    {12, 30, false, false, false, false, false, false, false, false},
+    {13, 0, true, false, false, false, false, false, false, false}
+};
+
+char* alarmtoString(s_alarm alarm) {
+    // format: ON 07:00 PN, WT, SR, CZ, PT, SB, ND
+    char* alarmString = new char[35];
+    if (alarm.enabled) {
+        sprintf(alarmString, "ON %02d:%02d", alarm.hour, alarm.minute);
+    }
+    else {
+        sprintf(alarmString, "OFF %02d:%02d", alarm.hour, alarm.minute);
+    }
+    if (alarm.poniedzialek) {
+        strcat(alarmString, " PN");
+    }
+    if (alarm.wtorek) {
+        strcat(alarmString, " WT");
+    }
+    if (alarm.sroda) {
+        strcat(alarmString, " SR");
+    }
+    if (alarm.czwartek) {
+        strcat(alarmString, " CZ");
+    }
+    if (alarm.piatek) {
+        strcat(alarmString, " PT");
+    }
+    if (alarm.sobota) {
+        strcat(alarmString, " SB");
+    }
+    if (alarm.niedziela) {
+        strcat(alarmString, " ND");
+    }
+    return alarmString;
+}
+
+void AlarmListboxLoad() {
+    gslc_ElemXListboxReset(&m_gui, m_alarmList);
+    for (int i = 0; i < 15; i++) {
+        gslc_ElemXListboxAddItem(&m_gui, m_alarmList, alarmtoString(alarms[i]));
+        Serial.println(alarmtoString(alarms[i]));
+    }
+}
+
+static int selectedAlarm = 0;
+
+void getAlarm() {
+    int16_t m_nSelected = gslc_ElemXListboxGetSel(&m_gui, m_alarmList);
+    Serial.println(m_nSelected);
+    if (m_nSelected >= 0) {
+        selectedAlarm = m_nSelected;
+        gslc_ElemSetTxtStr(&m_gui, m_ALARM_HOUR, String(alarms[m_nSelected].hour).c_str());
+        gslc_ElemSetTxtStr(&m_gui, m_ALARM_MIN, String(alarms[m_nSelected].minute).c_str());
+
+        gslc_ElemXTogglebtnSetState(&m_gui, m_ALARM_TOGGLE, alarms[m_nSelected].enabled);
+
+        gslc_ElemXCheckboxSetState(&m_gui, m_CHECK_PON, alarms[m_nSelected].poniedzialek);
+        gslc_ElemXCheckboxSetState(&m_gui, m_CHECK_WT, alarms[m_nSelected].wtorek);
+        gslc_ElemXCheckboxSetState(&m_gui, m_CHECK_SR, alarms[m_nSelected].sroda);
+        gslc_ElemXCheckboxSetState(&m_gui, m_CHECK_CZW, alarms[m_nSelected].czwartek);
+        gslc_ElemXCheckboxSetState(&m_gui, m_CHECK_PT, alarms[m_nSelected].piatek);
+        gslc_ElemXCheckboxSetState(&m_gui, m_CHECK_SB, alarms[m_nSelected].sobota);
+        gslc_ElemXCheckboxSetState(&m_gui, m_CHECK_ND, alarms[m_nSelected].niedziela);
+
+    }
+}
+
+void updateAlarm() {
+    int hour = atoi(gslc_ElemGetTxtStr(&m_gui, m_ALARM_HOUR));
+    int minute = atoi(gslc_ElemGetTxtStr(&m_gui, m_ALARM_MIN));
+    if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+        alarms[selectedAlarm].hour = hour;
+        alarms[selectedAlarm].minute = minute;
+    }
+    alarms[selectedAlarm].enabled = gslc_ElemXTogglebtnGetState(&m_gui, m_ALARM_TOGGLE);
+    alarms[selectedAlarm].poniedzialek = gslc_ElemXCheckboxGetState(&m_gui, m_CHECK_PON);
+    alarms[selectedAlarm].wtorek = gslc_ElemXCheckboxGetState(&m_gui, m_CHECK_WT);
+    alarms[selectedAlarm].sroda = gslc_ElemXCheckboxGetState(&m_gui, m_CHECK_SR);
+    alarms[selectedAlarm].czwartek = gslc_ElemXCheckboxGetState(&m_gui, m_CHECK_CZW);
+    alarms[selectedAlarm].piatek = gslc_ElemXCheckboxGetState(&m_gui, m_CHECK_PT);
+    alarms[selectedAlarm].sobota = gslc_ElemXCheckboxGetState(&m_gui, m_CHECK_SB);
+    alarms[selectedAlarm].niedziela = gslc_ElemXCheckboxGetState(&m_gui, m_CHECK_ND);
+    AlarmListboxLoad();
+}
 
 
