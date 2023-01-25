@@ -143,7 +143,7 @@ gslc_tsXKeyPad                  m_sKeyPadNum;
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
 gslc_tsXListbox                 m_sListbox1;
 // - Note that XLISTBOX_BUF_OH_R is extra required per item
-char                            m_acListboxBuf1[600 + XLISTBOX_BUF_OH_R];
+char                            m_acListboxBuf1[465 + XLISTBOX_BUF_OH_R];
 gslc_tsXSlider                  m_sListScroll1;
 gslc_tsXTogglebtn               m_asXToggle2;
 gslc_tsXCheckbox                m_asXCheck9;
@@ -164,7 +164,6 @@ gslc_tsXCheckbox                m_asXCheck21;
 
 // Element References for direct access
 //<Extern_References !Start!>
-extern gslc_tsElemRef* Sroda;
 extern gslc_tsElemRef* WIFI1;
 extern gslc_tsElemRef* WIFI2;
 extern gslc_tsElemRef* WIFI3;
@@ -359,8 +358,7 @@ void InitGUIslice_gen()
   static char m_sAIRQ[9] = "10000ppm";
   pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_AIRQ,E_PG_MAIN,(gslc_tsRect){190,209,19,10},
     m_sAIRQ,9,E_BUILTIN5X8);
-  gslc_ElemSetFillEn(&m_gui,pElemRef,true);
-  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_RED_DK1,GSLC_COL_RED_DK1,GSLC_COL_RED_DK1);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
   m_AIRQ = pElemRef;
 
   // Create E_DRAW_LINE1 line 
@@ -457,7 +455,7 @@ void InitGUIslice_gen()
   pElemRef = gslc_ElemXListboxCreate(&m_gui,E_ELEM_LISTBOX1,E_ALARMS,&m_sListbox1,
     (gslc_tsRect){20+2,40+4,280-4-30,135-7},E_BUILTIN5X8,
     (uint8_t*)&m_acListboxBuf1,sizeof(m_acListboxBuf1),0);
-  gslc_ElemXListboxSetSize(&m_gui, pElemRef, 15, 1); // 5 rows, 1 columns
+  gslc_ElemXListboxSetSize(&m_gui, pElemRef, 5, 1); // 5 rows, 1 columns
   gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 21);
   gslc_ElemSetTxtMarginXY(&m_gui, pElemRef, 5, 5);
   gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
@@ -465,14 +463,26 @@ void InitGUIslice_gen()
   gslc_ElemXListboxSetSelFunc(&m_gui, pElemRef, &CbListbox);
   gslc_ElemXListboxItemsSetGap(&m_gui, pElemRef, 5,GSLC_COL_BLACK);
   gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 10:00 PN WT SR CZ PT SB ND");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 09:00 PN WT SR CZ PT");
-  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OFF 99:00 PN WT SR CZ PT SB");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "11f 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "10f 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "9FF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "8FF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "7FF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "6FF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "5FF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "4FF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "1FF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "aFF 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "55F 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "44F 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "O3F 10:00 PN WT SR CZ PT SB ND");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "OF2 10:00 PN WT SR CZ PT SB ND");
   gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
   m_alarmList = pElemRef;
 
   // Create vertical scrollbar for listbox
   pElemRef = gslc_ElemXSliderCreate(&m_gui,E_LISTSCROLL1,E_ALARMS,&m_sListScroll1,
-          (gslc_tsRect){20+280-2-30,40+4,30,135-8},0,13,0,5,true);
+          (gslc_tsRect){20+280-2-30,40+4,30,135-8},0,20,0,7,true);
   gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLUE);
   gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
   m_pListSlider1 = pElemRef;
@@ -645,7 +655,6 @@ void InitGUIslice_gen()
     (char*)"Sroda",0,E_BUILTIN5X8);
   gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_RIGHT);
   gslc_ElemSetFillEn(&m_gui,pElemRef,false);
-  Sroda = pElemRef;
    
   // create checkbox E_ELEM_CHECK18
   pElemRef = gslc_ElemXCheckboxCreate(&m_gui,E_ELEM_CHECK18,E_PG_EDIT_ALARM,&m_asXCheck18,

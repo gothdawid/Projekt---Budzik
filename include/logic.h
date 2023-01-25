@@ -220,7 +220,7 @@ s_alarm alarms[13] = {
 
 char* alarmtoString(s_alarm alarm) {
     // format: ON 07:00 PN, WT, SR, CZ, PT, SB, ND
-    char* alarmString = new char[35];
+    char* alarmString = new char[31];
     if (alarm.enabled) {
         sprintf(alarmString, "ON %02d:%02d", alarm.hour, alarm.minute);
     }
@@ -253,10 +253,13 @@ char* alarmtoString(s_alarm alarm) {
 
 void AlarmListboxLoad() {
     gslc_ElemXListboxReset(&m_gui, m_alarmList);
-    for (int i = 0; i < 15; i++) {
-        gslc_ElemXListboxAddItem(&m_gui, m_alarmList, alarmtoString(alarms[i]));
+    for (int i = 0; i < 10; i++) {
         Serial.println(alarmtoString(alarms[i]));
+        char* test = alarmtoString(alarms[i]);
+        gslc_ElemXListboxAddItem(&m_gui, m_alarmList, test);
     }
+
+    //test = "qwertyuiopasdfghjklzxcvbnm123456790";
 }
 
 static int selectedAlarm = 0;
