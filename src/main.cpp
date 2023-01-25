@@ -24,36 +24,36 @@ int selectedWiFi = 0;
 
 // Save some element references for direct access
 //<Save_References !Start!>
-gslc_tsElemRef* m_AIRQ            = NULL;
-gslc_tsElemRef* m_ALARM_HOUR      = NULL;
-gslc_tsElemRef* m_ALARM_MIN       = NULL;
-gslc_tsElemRef* m_ALARM_TOGGLE    = NULL;
-gslc_tsElemRef* m_CHECK_CZW       = NULL;
-gslc_tsElemRef* m_CHECK_ND        = NULL;
-gslc_tsElemRef* m_CHECK_PON       = NULL;
-gslc_tsElemRef* m_CHECK_PT        = NULL;
-gslc_tsElemRef* m_CHECK_SB        = NULL;
-gslc_tsElemRef* m_CHECK_SR        = NULL;
-gslc_tsElemRef* m_CHECK_WT        = NULL;
-gslc_tsElemRef* m_Conn_Status     = NULL;
-gslc_tsElemRef* m_DATE            = NULL;
-gslc_tsElemRef* m_DAY             = NULL;
-gslc_tsElemRef* m_HUM             = NULL;
-gslc_tsElemRef* m_IP              = NULL;
-gslc_tsElemRef* m_PRESSURE        = NULL;
-gslc_tsElemRef* m_SECONDS         = NULL;
+gslc_tsElemRef* m_AIRQ = NULL;
+gslc_tsElemRef* m_ALARM_HOUR = NULL;
+gslc_tsElemRef* m_ALARM_MIN = NULL;
+gslc_tsElemRef* m_ALARM_TOGGLE = NULL;
+gslc_tsElemRef* m_CHECK_CZW = NULL;
+gslc_tsElemRef* m_CHECK_ND = NULL;
+gslc_tsElemRef* m_CHECK_PON = NULL;
+gslc_tsElemRef* m_CHECK_PT = NULL;
+gslc_tsElemRef* m_CHECK_SB = NULL;
+gslc_tsElemRef* m_CHECK_SR = NULL;
+gslc_tsElemRef* m_CHECK_WT = NULL;
+gslc_tsElemRef* m_Conn_Status = NULL;
+gslc_tsElemRef* m_DATE = NULL;
+gslc_tsElemRef* m_DAY = NULL;
+gslc_tsElemRef* m_HUM = NULL;
+gslc_tsElemRef* m_IP = NULL;
+gslc_tsElemRef* m_PRESSURE = NULL;
+gslc_tsElemRef* m_SECONDS = NULL;
 gslc_tsElemRef* m_SSID_TO_CONNECT = NULL;
-gslc_tsElemRef* m_SUNRISE         = NULL;
-gslc_tsElemRef* m_SUNSET          = NULL;
-gslc_tsElemRef* m_TEMP            = NULL;
-gslc_tsElemRef* m_TIME            = NULL;
-gslc_tsElemRef* m_alarmList       = NULL;
-gslc_tsElemRef* m_pElemInTxt1     = NULL;
-gslc_tsElemRef* m_pElemListbox2   = NULL;
-gslc_tsElemRef* m_pListSlider1    = NULL;
-gslc_tsElemRef* m_pListSlider2    = NULL;
-gslc_tsElemRef* m_pElemKeyPadNum  = NULL;
-gslc_tsElemRef* m_pElemKeyPadAlpha= NULL;
+gslc_tsElemRef* m_SUNRISE = NULL;
+gslc_tsElemRef* m_SUNSET = NULL;
+gslc_tsElemRef* m_TEMP = NULL;
+gslc_tsElemRef* m_TIME = NULL;
+gslc_tsElemRef* m_alarmList = NULL;
+gslc_tsElemRef* m_pElemInTxt1 = NULL;
+gslc_tsElemRef* m_pElemListbox2 = NULL;
+gslc_tsElemRef* m_pListSlider1 = NULL;
+gslc_tsElemRef* m_pListSlider2 = NULL;
+gslc_tsElemRef* m_pElemKeyPadNum = NULL;
+gslc_tsElemRef* m_pElemKeyPadAlpha = NULL;
 //<Save_References !End!>
 
 // Define debug message function
@@ -74,7 +74,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
   if (eTouch == GSLC_TOUCH_UP_IN) {
     // From the element's ID we can determine which button was pressed.
     switch (pElem->nId) {
-//<Button Enums !Start!>
+      //<Button Enums !Start!>
     case E_ELEM_BTN1:
       AlarmListboxLoad();
       gslc_SetPageCur(&m_gui, E_ALARMS);
@@ -95,6 +95,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       scanWiFi();
       break;
     case E_ELEM_BTN15:
+      eepromOperation(true);
       gslc_SetPageCur(&m_gui, E_PG_MAIN);
       break;
     case E_EDIT_ALARM:
@@ -136,7 +137,7 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
         ;
       }
       break;
-//<Button Enums !End!>
+      //<Button Enums !End!>
     default:
       break;
     }
@@ -159,7 +160,7 @@ bool CbCheckbox(void* pvGui, void* pvElemRef, int16_t nSelId, bool bState)
 
   // Determine which element issued the callback
   switch (pElem->nId) {
-//<Checkbox Enums !Start!>
+    //<Checkbox Enums !Start!>
   case E_ELEM_CHECK9:
     break;
   case E_ELEM_CHECK16:
@@ -175,7 +176,7 @@ bool CbCheckbox(void* pvGui, void* pvElemRef, int16_t nSelId, bool bState)
   case E_ELEM_CHECK21:
     break;
 
-//<Checkbox Enums !End!>
+    //<Checkbox Enums !End!>
   default:
     break;
   } // switch
@@ -195,7 +196,7 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData)
     // - If we have a popup active, pass the return value directly to
     //   the corresponding value field
     switch (nTargetElemId) {
-//<Keypad Enums !Start!>
+      //<Keypad Enums !Start!>
     case E_ELEM_TEXTINPUT1:
       gslc_ElemXKeyPadInputGet(pGui, m_pElemInTxt1, pvData);
       gslc_PopupHide(&m_gui);
@@ -209,7 +210,7 @@ bool CbKeypad(void* pvGui, void* pvElemRef, int16_t nState, void* pvData)
       gslc_ElemXKeyPadInputGet(pGui, m_ALARM_MIN, pvData);
       gslc_PopupHide(&m_gui);
       break;
-//<Keypad Enums !End!>
+      //<Keypad Enums !End!>
     default:
       break;
     }
@@ -235,28 +236,28 @@ bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId)
 
   // From the element's ID we can determine which listbox was active.
   switch (pElem->nId) {
-//<Listbox Enums !Start!>
+    //<Listbox Enums !Start!>
   case E_ELEM_LISTBOX1:
     if (nSelId != XLISTBOX_SEL_NONE) {
       gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);
     }
     break;
 
-    case E_ELEM_LISTBOX2:
-      if (nSelId != XLISTBOX_SEL_NONE) {
-        gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);
-        Serial.println(acTxt);
-        Serial.println(nSelId);
-        Serial.println(WiFi.SSID(nSelId));
-        selectedWiFi = nSelId;
-        gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
-        gslc_ElemSetTxtStr(&m_gui, m_pElemInTxt1, "");
-        gslc_ElemSetTxtStr(&m_gui, m_IP, "");
-        
-        gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
-      }
-      break;
-//<Listbox Enums !End!>
+  case E_ELEM_LISTBOX2:
+    if (nSelId != XLISTBOX_SEL_NONE) {
+      gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);
+      Serial.println(acTxt);
+      Serial.println(nSelId);
+      Serial.println(WiFi.SSID(nSelId));
+      selectedWiFi = nSelId;
+      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
+      gslc_ElemSetTxtStr(&m_gui, m_pElemInTxt1, "");
+      gslc_ElemSetTxtStr(&m_gui, m_IP, "");
+
+      gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
+    }
+    break;
+    //<Listbox Enums !End!>
   default:
     break;
   }
@@ -276,23 +277,23 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos)
 
   // From the element's ID we can determine which slider was updated.
   switch (pElem->nId) {
-//<Slider Enums !Start!>
-    case E_LISTSCROLL1:
-      // Fetch the slider position
-      nVal = gslc_ElemXSliderGetPos(pGui, m_pListSlider1);
-      // Update the listbox to match the slider position
-      pElemRefTmp = gslc_PageFindElemById(&m_gui, E_ALARMS, E_ELEM_LISTBOX1);
-      gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
-      break;
+    //<Slider Enums !Start!>
+  case E_LISTSCROLL1:
+    // Fetch the slider position
+    nVal = gslc_ElemXSliderGetPos(pGui, m_pListSlider1);
+    // Update the listbox to match the slider position
+    pElemRefTmp = gslc_PageFindElemById(&m_gui, E_ALARMS, E_ELEM_LISTBOX1);
+    gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
+    break;
 
-    case E_LISTSCROLL2:
-      // Fetch the slider position
-      nVal = gslc_ElemXSliderGetPos(pGui,m_pListSlider2);
-      // Update the listbox to match the slider position
-      pElemRefTmp = gslc_PageFindElemById(&m_gui, E_PG_WIFI, E_ELEM_LISTBOX2);
-      gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
-      break;
-//<Slider Enums !End!>
+  case E_LISTSCROLL2:
+    // Fetch the slider position
+    nVal = gslc_ElemXSliderGetPos(pGui, m_pListSlider2);
+    // Update the listbox to match the slider position
+    pElemRefTmp = gslc_PageFindElemById(&m_gui, E_PG_WIFI, E_ELEM_LISTBOX2);
+    gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
+    break;
+    //<Slider Enums !End!>
   default:
     break;
   }
@@ -309,7 +310,6 @@ void setup()
   // ------------------------------------------------
   pinMode(PIN_MQ135, INPUT);
   pinMode(DHTPIN, INPUT);
-
   Serial.begin(115200);
   timeClient.begin();
   Wire.begin();
@@ -319,7 +319,11 @@ void setup()
   }
   dht.begin();
   // Wait for USB Serial 
-  //delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
+  delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
+  eepromOperation(false);
+  if (appSettings.ssid != "" && appSettings.password != "") {
+    tryConnectToSavedWiFi();
+  }
 
   gslc_InitDebug(&DebugOut);
 

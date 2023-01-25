@@ -8,9 +8,8 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include <MQ135.h>
+#include <ESP_EEPROM.h>
 
-String connectedWiFi = "";
-String WiFiPassword = "";
 Adafruit_BMP280 bmp;
 
 unsigned long startTime = 0;
@@ -28,6 +27,9 @@ DHT dht(DHTPIN, DHTTYPE);
 
 #define PIN_MQ135 A0
 MQ135 mq135_sensor = MQ135(PIN_MQ135);
+
+#define BUZZER_PIN D4
+
 
 char SunriseText[] = "00:00"; 
 char SunsetText[] = "00:00";
@@ -129,27 +131,10 @@ String* scanWiFi() {
 }
 
 
-
-bool connectToWiFi(int index) {
-    WiFi.begin(WiFi.SSID(index).c_str(), gslc_ElemGetTxtStr(&m_gui, m_pElemInTxt1));
-    int timeout = 0;
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(1000);
-        timeout++;
-        if (timeout == 5) {
-            return false;
-            gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Error");
-            Serial.println("Nie udało się połączyć z siecią WiFi");
-        }
-    }
-    Serial.println("Połączono z siecią WiFi");
-    gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Połączono");
-    gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID().c_str());
-    gslc_ElemSetTxtStr(&m_gui, m_IP, WiFi.localIP().toString().c_str());
-    connectedWiFi = "ssid";
-    WiFiPassword = "password";
-    return true;
-}
+struct s_appSettings {
+    char ssid[16];
+    char password[32];
+};
 
 struct s_alarm {
     int hour;
@@ -164,11 +149,7 @@ struct s_alarm {
     bool niedziela;
 };
 
-struct s_settings {
-    char ssid[32];
-    char password[32];
-    s_alarm alarms[15];
-};
+s_appSettings appSettings = {"ssid", "password"};
 
 //Lista domyślnych alarmów
 s_alarm alarms[15] = {
@@ -188,6 +169,34 @@ s_alarm alarms[15] = {
     {13, 30, false, false, false, false, false, false, false, false},
     {14, 0, true, false, false, false, false, false, false, false}
 };
+
+
+
+void eepromOperation(bool save) {
+    int address = 0;
+    EEPROM.begin(sizeof(s_appSettings) + sizeof(s_alarm)*15);
+    if (save) {
+        EEPROM.put(address, appSettings);
+        address += sizeof(s_appSettings);
+        for (int i = 0; i < 15; i++) {
+            EEPROM.put(address, alarms[i]);
+            address += sizeof(s_alarm);
+        }
+        EEPROM.commit();
+
+    } else {
+        EEPROM.get(address, appSettings);
+        address += sizeof(s_appSettings);
+        for (int i = 0; i < 15; i++) {
+            EEPROM.get(address, alarms[i]);
+            address += sizeof(s_alarm);
+        }
+    }
+    EEPROM.end();
+
+
+    
+}
 
 char* alarmtoString(s_alarm alarm) {
     // format: ON 07:00 PN, WT, SR, CZ, PT, SB, ND
@@ -281,4 +290,66 @@ void updateAlarm() {
     AlarmListboxLoad();
 }
 
+void tryConnectToSavedWiFi() {
+    Serial.println("Sprawdzanie połączenia z siecią WiFi");
+    const char* ssid = appSettings.ssid;
+    const char* password = appSettings.password;
+    Serial.print("Laczenie z siecia WiFi: ");
+    Serial.print(ssid);
+    Serial.print(" Haslo: ");
+    Serial.println(password);
+
+    WiFi.begin(ssid, password);
+    int timeout = 0;
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(1000);
+        timeout++;
+        if (timeout == 5) {
+            Serial.println("Nie udało się połączyć z siecią WiFi");
+            return;
+        }
+    }
+    Serial.println("Połączono z siecią WiFi");
+    gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, ssid);
+
+}
+
+bool connectToWiFi(int index) {
+    WiFi.begin(WiFi.SSID(index).c_str(), gslc_ElemGetTxtStr(&m_gui, m_pElemInTxt1));
+    int timeout = 0;
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(1000);
+        timeout++;
+        if (timeout == 5) {
+            return false;
+            gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Error");
+            Serial.println("Nie udało się połączyć z siecią WiFi");
+        }
+    }
+    Serial.println("Połączono z siecią WiFi");
+    gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Polaczono");
+    gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID().c_str());
+    gslc_ElemSetTxtStr(&m_gui, m_IP, WiFi.localIP().toString().c_str());
+    const char* ssid = gslc_ElemGetTxtStr(&m_gui, m_SSID_TO_CONNECT);
+    Serial.println(ssid);
+    const char* password = gslc_ElemGetTxtStr(&m_gui, m_pElemInTxt1);
+    Serial.println(password);
+    for (int i = 0; i < sizeof(appSettings.ssid); i++) {
+        appSettings.ssid[i] = ssid[i];
+        if (ssid[i] == '\0') {
+            break;
+        }
+    }
+    for (int i = 0; i < sizeof(appSettings.password); i++) {
+        appSettings.password[i] = password[i];
+        if (password[i] == '\0') {
+            break;
+        }
+    }
+    // save alarm settings to eeprom
+
+    eepromOperation(true);
+
+    return true;
+}
 
