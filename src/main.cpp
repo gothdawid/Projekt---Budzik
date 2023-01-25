@@ -290,6 +290,7 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos)
   gslc_tsElemRef* pElemRef = (gslc_tsElemRef*)(pvElemRef);
   gslc_tsElem* pElem = gslc_GetElemFromRef(pGui, pElemRef);
   int16_t         nVal;
+  gslc_tsElemRef* pElemRefTmp = NULL;
 
   // From the element's ID we can determine which slider was updated.
   switch (pElem->nId) {
@@ -297,6 +298,9 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos)
   case E_LISTSCROLL1:
     // Fetch the slider position
     nVal = gslc_ElemXSliderGetPos(pGui, m_pListSlider1);
+    // Update the listbox to match the slider position
+    pElemRefTmp = gslc_PageFindElemById(&m_gui, E_ALARMS, E_ELEM_LISTBOX1);
+    gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
     break;
 
 //<Slider Enums !End!>

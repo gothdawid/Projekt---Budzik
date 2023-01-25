@@ -482,7 +482,7 @@ void InitGUIslice_gen()
 
   // Create vertical scrollbar for listbox
   pElemRef = gslc_ElemXSliderCreate(&m_gui,E_LISTSCROLL1,E_ALARMS,&m_sListScroll1,
-          (gslc_tsRect){20+280-2-30,40+4,30,135-8},0,20,0,7,true);
+          (gslc_tsRect){20+280-2-30,40+4,30,135-8},0,15,0,7,true);
   gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLUE);
   gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
   m_pListSlider1 = pElemRef;
