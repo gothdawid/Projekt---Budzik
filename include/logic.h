@@ -167,6 +167,7 @@ String* scanWiFi() {
 }
 
 
+
 bool connectToWiFi(int index) {
     WiFi.begin(WiFi.SSID(index).c_str(), gslc_ElemGetTxtStr(&m_gui, m_pElemInTxt1));
     int timeout = 0;
@@ -201,8 +202,14 @@ struct s_alarm {
     bool niedziela;
 };
 
+struct s_settings {
+    char ssid[32];
+    char password[32];
+    s_alarm alarms[15];
+};
+
 //Lista domyślnych alarmów
-s_alarm alarms[13] = {
+s_alarm alarms[15] = {
     {7, 0, true, true, true, true, true, true, true, true},
     {7, 30, false, true, true, true, false, false, false, false},
     {8, 0, true, true, true, false, false, false, false, false},
@@ -215,45 +222,54 @@ s_alarm alarms[13] = {
     {11, 30, false, false, false, false, false, false, false, false},
     {12, 0, true, false, false, false, false, false, false, false},
     {12, 30, false, false, false, false, false, false, false, false},
-    {13, 0, true, false, false, false, false, false, false, false}
+    {13, 0, true, false, false, false, false, false, false, false},
+    {13, 30, false, false, false, false, false, false, false, false},
+    {14, 0, true, false, false, false, false, false, false, false}
 };
 
 char* alarmtoString(s_alarm alarm) {
     // format: ON 07:00 PN, WT, SR, CZ, PT, SB, ND
     char* alarmString = new char[31];
     if (alarm.enabled) {
-        sprintf(alarmString, "ON %02d:%02d", alarm.hour, alarm.minute);
+        sprintf(alarmString, "ON %02d:%02d ", alarm.hour, alarm.minute);
     }
     else {
-        sprintf(alarmString, "OFF %02d:%02d", alarm.hour, alarm.minute);
+        sprintf(alarmString, "OFF %02d:%02d ", alarm.hour, alarm.minute);
     }
     if (alarm.poniedzialek) {
-        strcat(alarmString, " PN");
+        //strcat(alarmString, " PN");
+        strcat(alarmString, "1");
     }
     if (alarm.wtorek) {
-        strcat(alarmString, " WT");
+        //strcat(alarmString, " WT");
+        strcat(alarmString, "2");
     }
     if (alarm.sroda) {
-        strcat(alarmString, " SR");
+        //strcat(alarmString, " SR");
+        strcat(alarmString, "3");
     }
     if (alarm.czwartek) {
-        strcat(alarmString, " CZ");
+        //strcat(alarmString, " CZ");
+        strcat(alarmString, "4");
     }
     if (alarm.piatek) {
-        strcat(alarmString, " PT");
+        //strcat(alarmString, " PT");
+        strcat(alarmString, "5");
     }
     if (alarm.sobota) {
-        strcat(alarmString, " SB");
+        //strcat(alarmString, " SB");
+        strcat(alarmString, "6");
     }
     if (alarm.niedziela) {
-        strcat(alarmString, " ND");
+        //strcat(alarmString, " ND");
+        strcat(alarmString, "7");
     }
     return alarmString;
 }
 
 void AlarmListboxLoad() {
     gslc_ElemXListboxReset(&m_gui, m_alarmList);
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 15; i++) {
         Serial.println(alarmtoString(alarms[i]));
         char* test = alarmtoString(alarms[i]);
         gslc_ElemXListboxAddItem(&m_gui, m_alarmList, test);
