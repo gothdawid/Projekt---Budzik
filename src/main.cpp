@@ -19,7 +19,7 @@
 // Program Globals
 // ------------------------------------------------
 //last sync time
-unsigned long lastSyncTime = 0, lastBMPTime = 0, lastDHTTime = 0, lastMQ135Time = 0;
+unsigned long lastSyncTime = 0, lastBMPTime = 0, lastDHTTime = 0, lastMQ135Time = 0, lastAlarmCheckTime = 0;
 int selectedWiFi = 0;
 
 // Save some element references for direct access
@@ -318,6 +318,7 @@ void setup()
     while (1);
   }
   dht.begin();
+  e8rtp::setup(BUZZER_PIN, 5, "Georgia on my mind: d=4,o=5,b=120: 8e,2g.,8p,8e,2d.,8p,p,e,a,e,2d.,8c,8d,e,g,b,a,f,f,8e,e,1c");
   // Wait for USB Serial 
   delay(1000);  // NOTE: Some devices require a delay after Serial.begin() before serial port can be used
   eepromOperation(false);
@@ -338,7 +339,7 @@ void setup()
 // -----------------------------------
 void loop()
 {
-
+  e8rtp::loop();
   // ------------------------------------------------
   // Update GUI Elements
   // ------------------------------------------------
@@ -374,6 +375,14 @@ void loop()
     lastMQ135Time = millis();
     updateMQ135();
     gslc_ElemSetTxtStr(&m_gui, m_AIRQ, MQ135Text);
+      
+
+  }
+  if (millis() - lastAlarmCheckTime > 5000) {
+    lastAlarmCheckTime = millis();
+    checkAlarms();
+    //e8rtp::start();
+
   }
   gslc_Update(&m_gui);
 

@@ -10,6 +10,9 @@
 #include <MQ135.h>
 #include <ESP_EEPROM.h>
 
+#include <ESP8266RTTTLPlus.h>
+
+
 Adafruit_BMP280 bmp;
 
 unsigned long startTime = 0;
@@ -31,6 +34,7 @@ MQ135 mq135_sensor = MQ135(PIN_MQ135);
 #define BUZZER_PIN D4
 
 
+
 char SunriseText[] = "00:00"; 
 char SunsetText[] = "00:00";
 char TimeText[] = "00:00";
@@ -44,6 +48,7 @@ char HumidityText[] = "00.0%";
 char MQ135Text[] = "0000ppm";
 
 float temperature = 0, humidity = 0;
+int hour = 0, minute = 0, weekday = 0;
 
 void updateMQ135() {
     float mq135 = mq135_sensor.getPPM();
@@ -81,7 +86,12 @@ void updateBMP280() {
 //     Serial.println(" hpa");
 }
 
+
 void updateTexts(struct tm *ptm) {
+    hour = ptm->tm_hour;
+    minute = ptm->tm_min;
+    weekday = ptm->tm_wday;
+
     sprintf(TimeText, "%02d:%02d", ptm->tm_hour, ptm->tm_min);
     sprintf(SecondsText, "%02d", ptm->tm_sec);
     sprintf(DateText, "%02d.%02d.%04d", ptm->tm_mday, ptm->tm_mon + 1, ptm->tm_year + 1900);
@@ -353,3 +363,48 @@ bool connectToWiFi(int index) {
     return true;
 }
 
+
+bool checkAlarms() {
+    for (int i = 0; i < 15; i++) {
+        if (alarms[i].enabled) {
+            if (alarms[i].hour == hour && alarms[i].minute == minute) {
+                if (alarms[i].poniedzialek && weekday == 1) {
+                    alarms[i].enabled = false;
+                    e8rtp::start();
+                    return true;
+                }
+                if (alarms[i].wtorek && weekday == 2) {
+                    alarms[i].enabled = false;
+                    e8rtp::start();
+                    return true;
+                }
+                if (alarms[i].sroda && weekday == 3) {
+                    alarms[i].enabled = false;
+                    e8rtp::start();
+                    return true;
+                }
+                if (alarms[i].czwartek && weekday == 4) {
+                    alarms[i].enabled = false;
+                    e8rtp::start();
+                    return true;
+                }
+                if (alarms[i].piatek && weekday == 5) {
+                    alarms[i].enabled = false;
+                    e8rtp::start();
+                    return true;
+                }
+                if (alarms[i].sobota && weekday == 6) {
+                    alarms[i].enabled = false;
+                    e8rtp::start();
+                    return true;
+                }
+                if (alarms[i].niedziela && weekday == 7) {
+                    alarms[i].enabled = false;
+                    e8rtp::start();
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
