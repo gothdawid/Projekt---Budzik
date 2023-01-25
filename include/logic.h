@@ -107,61 +107,23 @@ bool syncTime() {
 
 String* scanWiFi() {
     int numberOfNetworks = WiFi.scanNetworks();
+    gslc_ElemXListboxReset(&m_gui, m_pElemListbox2);
     if (numberOfNetworks == 0) {
         return new String[1] {"Brak dostępnych sieci WiFi"};
     }
     else {
         String* availableNetworks = new String[numberOfNetworks];
-        int rssi[numberOfNetworks];
+        // zapisanie nazw sieci i ich sił do tablicy w formacie "Nazwa (siła)"
         for (int i = 0; i < numberOfNetworks; i++) {
-            availableNetworks[i] = WiFi.SSID(i);
-            rssi[i] = WiFi.RSSI(i);
-        }
-
-        //sortowanie
-        for(int i = 0; i < numberOfNetworks; i++) {
-            for(int j = i + 1; j < numberOfNetworks; j++) {
-                if(rssi[i] < rssi[j]) {
-                    int tempRSSI = rssi[i];
-                    rssi[i] = rssi[j];
-                    rssi[j] = tempRSSI;
-                    String tempSSID = availableNetworks[i];
-                    availableNetworks[i] = availableNetworks[j];
-                    availableNetworks[j] = tempSSID;
-                }
-            }
-        }
-        //gslc_ElemSetTxtStr(&m_gui, WIFI1, availableNetworks[0].c_str());
-        for (int i = 0; i < numberOfNetworks; i++) {
-            switch (i) {
-                case 0:
-                    gslc_ElemSetTxtStr(&m_gui, WIFI1, availableNetworks[i].c_str());
-                    break;
-                case 1:
-                    gslc_ElemSetTxtStr(&m_gui, WIFI2, availableNetworks[i].c_str());
-                    break;
-                case 2:
-                    gslc_ElemSetTxtStr(&m_gui, WIFI3, availableNetworks[i].c_str());
-                    break;
-                case 3:
-                    gslc_ElemSetTxtStr(&m_gui, WIFI4, availableNetworks[i].c_str());
-                    break;
-                case 4:
-                    gslc_ElemSetTxtStr(&m_gui, WIFI5, availableNetworks[i].c_str());
-                    break;
-            }
+            availableNetworks[i] = WiFi.SSID(i) + " (" + WiFi.RSSI(i) + ")";
         }
         
-        // Wyświetlanie dostępnych sieci na terminalu
-        Serial.println("Dostępne sieci WiFi:");
+
         for (int i = 0; i < numberOfNetworks; i++) {
-            Serial.print(i + 1);
-            Serial.print(". ");
-            Serial.print(availableNetworks[i]);
-            Serial.print(" (");
-            Serial.print(rssi[i]);
-            Serial.println(")");
+            gslc_ElemXListboxAddItem(&m_gui, m_pElemListbox2, availableNetworks[i].c_str());
         }
+        
+
         return availableNetworks;
     }
 }

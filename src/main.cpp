@@ -24,11 +24,6 @@ int selectedWiFi = 0;
 
 // Save some element references for direct access
 //<Save_References !Start!>
-gslc_tsElemRef* WIFI1             = NULL;
-gslc_tsElemRef* WIFI2             = NULL;
-gslc_tsElemRef* WIFI3             = NULL;
-gslc_tsElemRef* WIFI4             = NULL;
-gslc_tsElemRef* WIFI5             = NULL;
 gslc_tsElemRef* m_AIRQ            = NULL;
 gslc_tsElemRef* m_ALARM_HOUR      = NULL;
 gslc_tsElemRef* m_ALARM_MIN       = NULL;
@@ -54,7 +49,9 @@ gslc_tsElemRef* m_TEMP            = NULL;
 gslc_tsElemRef* m_TIME            = NULL;
 gslc_tsElemRef* m_alarmList       = NULL;
 gslc_tsElemRef* m_pElemInTxt1     = NULL;
+gslc_tsElemRef* m_pElemListbox2   = NULL;
 gslc_tsElemRef* m_pListSlider1    = NULL;
+gslc_tsElemRef* m_pListSlider2    = NULL;
 gslc_tsElemRef* m_pElemKeyPadNum  = NULL;
 gslc_tsElemRef* m_pElemKeyPadAlpha= NULL;
 //<Save_References !End!>
@@ -93,35 +90,6 @@ bool CbBtnCommon(void* pvGui, void* pvElemRef, gslc_teTouch eTouch, int16_t nX, 
       break;
     case E_ELEM_BTN5:
       gslc_SetPageCur(&m_gui, E_PG_SETTINGS);
-      break;
-    case E_ELEM_UP:
-      break;
-    case E_ELEM_DOWN:
-      break;
-    case E_ELEM_WIFI1:
-      selectedWiFi = 0;
-      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
-      gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
-      break;
-    case E_ELEM_WIFI2:
-      selectedWiFi = 1;
-      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
-      gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
-      break;
-    case E_ELEM_WIFI3:
-      selectedWiFi = 2;
-      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
-      gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
-      break;
-    case E_ELEM_WIFI4:
-      selectedWiFi = 3;
-      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
-      gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
-      break;
-    case E_ELEM_WIFI5:
-      selectedWiFi = 4;
-      gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
-      gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
       break;
     case E_BT_WIFI_REFRESH:
       scanWiFi();
@@ -274,6 +242,20 @@ bool CbListbox(void* pvGui, void* pvElemRef, int16_t nSelId)
     }
     break;
 
+    case E_ELEM_LISTBOX2:
+      if (nSelId != XLISTBOX_SEL_NONE) {
+        gslc_ElemXListboxGetItem(&m_gui, pElemRef, nSelId, acTxt, MAX_STR);
+        Serial.println(acTxt);
+        Serial.println(nSelId);
+        Serial.println(WiFi.SSID(nSelId));
+        selectedWiFi = nSelId;
+        gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID(selectedWiFi).c_str());
+        gslc_ElemSetTxtStr(&m_gui, m_pElemInTxt1, "");
+        gslc_ElemSetTxtStr(&m_gui, m_IP, "");
+        
+        gslc_SetPageCur(&m_gui, E_PG_PASSWORD);
+      }
+      break;
 //<Listbox Enums !End!>
   default:
     break;
@@ -295,14 +277,21 @@ bool CbSlidePos(void* pvGui, void* pvElemRef, int16_t nPos)
   // From the element's ID we can determine which slider was updated.
   switch (pElem->nId) {
 //<Slider Enums !Start!>
-  case E_LISTSCROLL1:
-    // Fetch the slider position
-    nVal = gslc_ElemXSliderGetPos(pGui, m_pListSlider1);
-    // Update the listbox to match the slider position
-    pElemRefTmp = gslc_PageFindElemById(&m_gui, E_ALARMS, E_ELEM_LISTBOX1);
-    gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
-    break;
+    case E_LISTSCROLL1:
+      // Fetch the slider position
+      nVal = gslc_ElemXSliderGetPos(pGui, m_pListSlider1);
+      // Update the listbox to match the slider position
+      pElemRefTmp = gslc_PageFindElemById(&m_gui, E_ALARMS, E_ELEM_LISTBOX1);
+      gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
+      break;
 
+    case E_LISTSCROLL2:
+      // Fetch the slider position
+      nVal = gslc_ElemXSliderGetPos(pGui,m_pListSlider2);
+      // Update the listbox to match the slider position
+      pElemRefTmp = gslc_PageFindElemById(&m_gui, E_PG_WIFI, E_ELEM_LISTBOX2);
+      gslc_ElemXListboxSetScrollPos(pGui, pElemRefTmp, nVal);
+      break;
 //<Slider Enums !End!>
   default:
     break;

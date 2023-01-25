@@ -65,16 +65,15 @@ enum {E_BT_WIFI_REFRESH,E_Conn_Status,E_DATE,E_DAY,E_DRAW_LINE1
       ,E_ELEM_BTN17,E_ELEM_BTN19,E_ELEM_BTN2,E_ELEM_BTN24,E_ELEM_BTN25
       ,E_ELEM_BTN3,E_ELEM_BTN4,E_ELEM_BTN5,E_ELEM_CHECK16
       ,E_ELEM_CHECK17,E_ELEM_CHECK18,E_ELEM_CHECK19,E_ELEM_CHECK20
-      ,E_ELEM_CHECK21,E_ELEM_CHECK9,E_ELEM_DOWN,E_ELEM_HUM
-      ,E_ELEM_LISTBOX1,E_ELEM_NUMINPUT3,E_ELEM_NUMINPUT4
+      ,E_ELEM_CHECK21,E_ELEM_CHECK9,E_ELEM_HUM,E_ELEM_LISTBOX1
+      ,E_ELEM_LISTBOX2,E_ELEM_NUMINPUT3,E_ELEM_NUMINPUT4
       ,E_ELEM_PRESSURE,E_ELEM_SUNRISE,E_ELEM_SUNSET,E_ELEM_TEMP
       ,E_ELEM_TEXT18,E_ELEM_TEXT19,E_ELEM_TEXT20,E_ELEM_TEXT28
       ,E_ELEM_TEXT29,E_ELEM_TEXT30,E_ELEM_TEXT31,E_ELEM_TEXT32
       ,E_ELEM_TEXT33,E_ELEM_TEXT34,E_ELEM_TEXT35,E_ELEM_TEXT36
       ,E_ELEM_TEXT4,E_ELEM_TEXT5,E_ELEM_TEXT6,E_ELEM_TEXTINPUT1
-      ,E_ELEM_TOGGLE2,E_ELEM_UP,E_ELEM_WIFI1,E_ELEM_WIFI2,E_ELEM_WIFI3
-      ,E_ELEM_WIFI4,E_ELEM_WIFI5,E_LISTSCROLL1,E_SECONDS,E_TIME
-      ,E_ELEM_KEYPAD_NUM,E_ELEM_KEYPAD_ALPHA};
+      ,E_ELEM_TOGGLE2,E_ELEM_WIFITEXT,E_LISTSCROLL1,E_LISTSCROLL2
+      ,E_SECONDS,E_TIME,E_ELEM_KEYPAD_NUM,E_ELEM_KEYPAD_ALPHA};
 // Must use separate enum for fonts with MAX_FONT at end to use gslc_FontSet.
 enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN20X32,E_BUILTIN5X8
       ,E_NOTOLATIN1_10PT,E_NOTOLATIN1_12PT,E_NOTOLATIN1_36PT,MAX_FONT};
@@ -96,7 +95,7 @@ enum {E_BUILTIN10X16,E_BUILTIN15X24,E_BUILTIN20X32,E_BUILTIN5X8
 #define MAX_ELEM_PG_SETTINGS 3 // # Elems total on page
 #define MAX_ELEM_PG_SETTINGS_RAM MAX_ELEM_PG_SETTINGS // # Elems in RAM
 
-#define MAX_ELEM_PG_WIFI 10 // # Elems total on page
+#define MAX_ELEM_PG_WIFI 7 // # Elems total on page
 #define MAX_ELEM_PG_WIFI_RAM MAX_ELEM_PG_WIFI // # Elems in RAM
 
 #define MAX_ELEM_ALARMS 7 // # Elems total on page
@@ -141,6 +140,10 @@ gslc_tsElem                     m_asKeypadAlphaElem[1];
 gslc_tsElemRef                  m_asKeypadAlphaElemRef[1];
 gslc_tsXKeyPad                  m_sKeyPadNum;
 gslc_tsXKeyPad                  m_sKeyPadAlpha;
+gslc_tsXListbox                 m_sListbox2;
+// - Note that XLISTBOX_BUF_OH_R is extra required per item
+char                            m_acListboxBuf2[200 + XLISTBOX_BUF_OH_R];
+gslc_tsXSlider                  m_sListScroll2;
 gslc_tsXListbox                 m_sListbox1;
 // - Note that XLISTBOX_BUF_OH_R is extra required per item
 char                            m_acListboxBuf1[465 + XLISTBOX_BUF_OH_R];
@@ -164,11 +167,6 @@ gslc_tsXCheckbox                m_asXCheck21;
 
 // Element References for direct access
 //<Extern_References !Start!>
-extern gslc_tsElemRef* WIFI1;
-extern gslc_tsElemRef* WIFI2;
-extern gslc_tsElemRef* WIFI3;
-extern gslc_tsElemRef* WIFI4;
-extern gslc_tsElemRef* WIFI5;
 extern gslc_tsElemRef* m_AIRQ;
 extern gslc_tsElemRef* m_ALARM_HOUR;
 extern gslc_tsElemRef* m_ALARM_MIN;
@@ -194,7 +192,9 @@ extern gslc_tsElemRef* m_TEMP;
 extern gslc_tsElemRef* m_TIME;
 extern gslc_tsElemRef* m_alarmList;
 extern gslc_tsElemRef* m_pElemInTxt1;
+extern gslc_tsElemRef* m_pElemListbox2;
 extern gslc_tsElemRef* m_pListSlider1;
+extern gslc_tsElemRef* m_pListSlider2;
 extern gslc_tsElemRef* m_pElemKeyPadNum;
 extern gslc_tsElemRef* m_pElemKeyPadAlpha;
 //<Extern_References !End!>
@@ -393,47 +393,48 @@ void InitGUIslice_gen()
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_BTN5,E_PG_WIFI,
     (gslc_tsRect){240,185,60,40},(char*)"Cofnij",0,E_BUILTIN5X8,&CbBtnCommon);
   
-  // create E_ELEM_UP button with text label
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_UP,E_PG_WIFI,
-    (gslc_tsRect){190,185,40,40},(char*)"/\\",0,E_BUILTIN5X8,&CbBtnCommon);
-  
-  // create E_ELEM_DOWN button with text label
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_DOWN,E_PG_WIFI,
-    (gslc_tsRect){140,185,40,40},(char*)"\\/",0,E_BUILTIN5X8,&CbBtnCommon);
-  
-  // create E_ELEM_WIFI1 button with text label
-  static char m_sWIFI1[30] = "";
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFI1,E_PG_WIFI,
-    (gslc_tsRect){20,15,280,24},m_sWIFI1,30,E_BUILTIN5X8,&CbBtnCommon);
-  WIFI1 = pElemRef;
-  
-  // create E_ELEM_WIFI2 button with text label
-  static char m_sWIFI2[30] = "";
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFI2,E_PG_WIFI,
-    (gslc_tsRect){20,49,280,24},m_sWIFI2,30,E_BUILTIN5X8,&CbBtnCommon);
-  WIFI2 = pElemRef;
-  
-  // create E_ELEM_WIFI3 button with text label
-  static char m_sWIFI3[30] = "";
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFI3,E_PG_WIFI,
-    (gslc_tsRect){20,83,280,24},m_sWIFI3,30,E_BUILTIN5X8,&CbBtnCommon);
-  WIFI3 = pElemRef;
-  
-  // create E_ELEM_WIFI4 button with text label
-  static char m_sWIFI4[30] = "";
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFI4,E_PG_WIFI,
-    (gslc_tsRect){20,117,280,24},m_sWIFI4,30,E_BUILTIN5X8,&CbBtnCommon);
-  WIFI4 = pElemRef;
-  
-  // create E_ELEM_WIFI5 button with text label
-  static char m_sWIFI5[30] = "";
-  pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_ELEM_WIFI5,E_PG_WIFI,
-    (gslc_tsRect){20,151,280,24},m_sWIFI5,30,E_BUILTIN5X8,&CbBtnCommon);
-  WIFI5 = pElemRef;
-  
   // create E_BT_WIFI_REFRESH button with text label
   pElemRef = gslc_ElemCreateBtnTxt(&m_gui,E_BT_WIFI_REFRESH,E_PG_WIFI,
     (gslc_tsRect){20,185,110,40},(char*)"Odswiez",0,E_BUILTIN5X8,&CbBtnCommon);
+   
+  // Create wrapping box for listbox E_ELEM_LISTBOX2 and scrollbar
+  pElemRef = gslc_ElemCreateBox(&m_gui,GSLC_ID_AUTO,E_PG_WIFI,(gslc_tsRect){20,40,280,135});
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_TEAL);
+  
+  // Create listbox
+  pElemRef = gslc_ElemXListboxCreate(&m_gui,E_ELEM_LISTBOX2,E_PG_WIFI,&m_sListbox2,
+    (gslc_tsRect){20+2,40+4,280-4-30,135-7},E_BUILTIN5X8,
+    (uint8_t*)&m_acListboxBuf2,sizeof(m_acListboxBuf2),0);
+  gslc_ElemXListboxSetSize(&m_gui, pElemRef, 5, 1); // 5 rows, 1 columns
+  gslc_ElemXListboxItemsSetSize(&m_gui, pElemRef, -1, 21);
+  gslc_ElemSetTxtMarginXY(&m_gui, pElemRef, 5, 5);
+  gslc_ElemSetTxtCol(&m_gui,pElemRef,GSLC_COL_WHITE);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLUE_DK4,GSLC_COL_TEAL);
+  gslc_ElemXListboxSetSelFunc(&m_gui, pElemRef, &CbListbox);
+  gslc_ElemXListboxItemsSetGap(&m_gui, pElemRef, 5,GSLC_COL_BLACK);
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "SAGA");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "TP_LINK");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ASUS");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ASUS_5G");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "TP_LINK5G");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "DOMOWY");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "NETIA");
+  gslc_ElemXListboxAddItem(&m_gui, pElemRef, "ORANGE");
+  gslc_ElemSetFrameEn(&m_gui,pElemRef,true);
+  m_pElemListbox2 = pElemRef;
+
+  // Create vertical scrollbar for listbox
+  pElemRef = gslc_ElemXSliderCreate(&m_gui,E_LISTSCROLL2,E_PG_WIFI,&m_sListScroll2,
+          (gslc_tsRect){20+280-2-30,40+4,30,135-8},0,15,0,5,true);
+  gslc_ElemSetCol(&m_gui,pElemRef,GSLC_COL_BLUE,GSLC_COL_BLACK,GSLC_COL_BLUE);
+  gslc_ElemXSliderSetPosFunc(&m_gui,pElemRef,&CbSlidePos);
+  m_pListSlider2 = pElemRef;
+  
+  // Create E_ELEM_WIFITEXT text label
+  pElemRef = gslc_ElemCreateTxt(&m_gui,E_ELEM_WIFITEXT,E_PG_WIFI,(gslc_tsRect){60,13,199,26},
+    (char*)"Lista Sieci",0,E_BUILTIN15X24);
+  gslc_ElemSetTxtAlign(&m_gui,pElemRef,GSLC_ALIGN_MID_MID);
+  gslc_ElemSetFillEn(&m_gui,pElemRef,false);
 
   // -----------------------------------
   // PAGE: E_ALARMS
