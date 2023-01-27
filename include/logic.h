@@ -423,6 +423,8 @@ BearSSL::Session tlsSession;
 
 String now() {
     time_t epochTime = timeClient.getEpochTime();
+    // epochTime minus 30 minutes
+    epochTime -= 1800;
     struct tm* ptm = gmtime(&epochTime);
     char buffer[80];
     strftime(buffer, 80, "%Y-%m-%dT%H:%M:%S.000Z", ptm);
@@ -442,7 +444,11 @@ void getAlarmsFromGoogleCalendarSecure() {
         url += "&alwaysIncludeEmail=false";
         url += "&prettyPrint=false";
         url += "&alt=json";
-        url += "&fields=items(start(dateTime),%20end(dateTime),%20summary,%20recurrence)";
+        url += "&timeMin=";
+        url += now();
+        url += "&fields=items(start(dateTime),%20summary,%20recurrence)";
+        //url += "&maxResults=5";
+        //url += "&orderBy=startTime";
 
         Serial.println(url);
         clientSecure.setInsecure();
@@ -539,19 +545,67 @@ void getAlarmsFromGoogleCalendarSecure() {
                 // Get the start time
                 String start = String(doc["items"][i]["start"]["dateTime"]);
                 // get the hour and minute
-                int hour = start.substring(11, 13).toInt();
-                int minute = start.substring(14, 16).toInt();
+                int hour2 = start.substring(11, 13).toInt();
+                int minute2 = start.substring(14, 16).toInt();
+                int day2 = start.substring(8, 10).toInt();
+                int month2 = start.substring(5, 7).toInt();
+                int year2 = start.substring(0, 4).toInt();
 
-                // Get the weekday
-                String recurrence = String(doc["items"][i]["recurrence"][0]);
-                int weekday = recurrence.substring(6, 7).toInt();
-
-                Serial.print(hour);
+                // Print the start time
+                Serial.print("Start time: ");
+                Serial.print(hour2);
                 Serial.print(":");
-                Serial.print(minute);
-                Serial.print(" : ");
-                Serial.println(days[weekday].c_str());
+                Serial.println(minute2);
+                Serial.print("Day: ");
+                Serial.println(day2);
+                Serial.print("Month: ");
+                Serial.println(month2);
+                Serial.print("Year: ");
+                Serial.println(year2);
 
+                // Save the first alarm in the array of alarms
+
+                alarms[i].hour = hour2;
+                alarms[i].minute = minute2;
+                alarms[i].enabled = true;
+
+                // Parse weekday from day of month and year
+                // https://stackoverflow.com/questions/21242011/calculate-day-of-week-from-date
+                int weekday2 = (day2 += month2 < 3 ? year2-- : year2 - 2, 23 * month2 / 9 + day2 + 4 + year2 / 4 - year2 / 100 + year2 / 400) % 7;
+                Serial.print("Weekday: ");
+                Serial.println(weekday2);
+                Serial.println(days[weekday2]);
+
+                // Save the weekday
+                alarms[i].poniedzialek = false;
+                alarms[i].wtorek = false;
+                alarms[i].sroda = false;
+                alarms[i].czwartek = false;
+                alarms[i].piatek = false;
+                alarms[i].sobota = false;
+                alarms[i].niedziela = false;
+
+                if (weekday2 == 0) {
+                    alarms[i].poniedzialek = true;
+                }
+                else if (weekday2 == 1) {
+                    alarms[i].wtorek = true;
+                }
+                else if (weekday2 == 2) {
+                    alarms[i].sroda = true;
+                }
+                else if (weekday2 == 3) {
+                    alarms[i].czwartek = true;
+                }
+                else if (weekday2 == 4) {
+                    alarms[i].piatek = true;
+                }
+                else if (weekday2 == 5) {
+                    alarms[i].sobota = true;
+                }
+                else if (weekday2 == 6) {
+                    alarms[i].niedziela = true;
+                }
             }
 
             // Serial.println();

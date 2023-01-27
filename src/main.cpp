@@ -19,7 +19,7 @@
 // Program Globals
 // ------------------------------------------------
 //last sync time
-unsigned long lastSyncTime = 0, lastBMPTime = 0, lastDHTTime = 0, lastMQ135Time = 0, lastAlarmCheckTime = 0, lastGetGoogleAlarmsTime = 0;
+unsigned long lastSyncTime = 0, lastBMPTime = 0, lastDHTTime = 0, lastMQ135Time = 0, lastAlarmCheckTime = 0, lastGetGoogleAlarmsTime = 62573;
 int selectedWiFi = 0;
 
 // Save some element references for direct access
