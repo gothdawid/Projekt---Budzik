@@ -11,13 +11,17 @@
 #include <ESP_EEPROM.h>
 
 #include <ESP8266RTTTLPlus.h>
+#include <ArduinoJson.h>
 
+const char* client_id = "393565403730-48p5e5maa5smu4q3cvr9e4f97nd0og4n.apps.googleusercontent.com";
+const char* client_secret = "AIzaSyBryBsZbT9zqhHfEtQvIHNkQ_oNtwT5myo";
+const char* calendar_id = "8202aa352ff05a668aee4a36e941ecefd7c23a5c8c057f2de7550ffcbf093f76@group.calendar.google.com";
 
 Adafruit_BMP280 bmp;
 
 unsigned long startTime = 0;
 
-String* days = new String[7] {"Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek", "Sobota"};
+String* days = new String[7]{ "Niedziela", "Poniedzialek", "Wtorek", "Sroda", "Czwartek", "Piatek", "Sobota" };
 
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);
@@ -35,7 +39,7 @@ MQ135 mq135_sensor = MQ135(PIN_MQ135);
 
 
 
-char SunriseText[] = "00:00"; 
+char SunriseText[] = "00:00";
 char SunsetText[] = "00:00";
 char TimeText[] = "00:00";
 char DateText[] = "00.00.0000";
@@ -79,15 +83,15 @@ void updateBMP280() {
     float pressure = bmp.readPressure() / 100;
     sprintf(TemperatureText, "%2.1f%S", temperature, "*C");
     sprintf(PressureText, "%4.0f%S", pressure, "hpa");
-//     Serial.print("BMP280: ");
-//     Serial.print(temperature);
-//     Serial.print(" *C, ");
-//     Serial.print(pressure);
-//     Serial.println(" hpa");
+    //     Serial.print("BMP280: ");
+    //     Serial.print(temperature);
+    //     Serial.print(" *C, ");
+    //     Serial.print(pressure);
+    //     Serial.println(" hpa");
 }
 
 
-void updateTexts(struct tm *ptm) {
+void updateTexts(struct tm* ptm) {
     hour = ptm->tm_hour;
     minute = ptm->tm_min;
     weekday = ptm->tm_wday;
@@ -106,7 +110,7 @@ void updateTexts(struct tm *ptm) {
 bool syncTime() {
     //if wifi is connected
     time_t epochTime = timeClient.getEpochTime();
-    struct tm *ptm = gmtime (&epochTime); 
+    struct tm* ptm = gmtime(&epochTime);
     updateTexts(ptm);
     if (WiFi.status() == WL_CONNECTED) {
         if (timeClient.update()) {
@@ -121,7 +125,7 @@ String* scanWiFi() {
     int numberOfNetworks = WiFi.scanNetworks();
     gslc_ElemXListboxReset(&m_gui, m_pElemListbox2);
     if (numberOfNetworks == 0) {
-        return new String[1] {"Brak dostępnych sieci WiFi"};
+        return new String[1]{ "Brak dostępnych sieci WiFi" };
     }
     else {
         String* availableNetworks = new String[numberOfNetworks];
@@ -129,12 +133,12 @@ String* scanWiFi() {
         for (int i = 0; i < numberOfNetworks; i++) {
             availableNetworks[i] = WiFi.SSID(i) + " (" + WiFi.RSSI(i) + ")";
         }
-        
+
 
         for (int i = 0; i < numberOfNetworks; i++) {
             gslc_ElemXListboxAddItem(&m_gui, m_pElemListbox2, availableNetworks[i].c_str());
         }
-        
+
 
         return availableNetworks;
     }
@@ -159,7 +163,7 @@ struct s_alarm {
     bool niedziela;
 };
 
-s_appSettings appSettings = {"ssid", "password"};
+s_appSettings appSettings = { "ssid", "password" };
 
 //Lista domyślnych alarmów
 s_alarm alarms[15] = {
@@ -184,7 +188,7 @@ s_alarm alarms[15] = {
 
 void eepromOperation(bool save) {
     int address = 0;
-    EEPROM.begin(sizeof(s_appSettings) + sizeof(s_alarm)*15);
+    EEPROM.begin(sizeof(s_appSettings) + sizeof(s_alarm) * 15);
     if (save) {
         EEPROM.put(address, appSettings);
         address += sizeof(s_appSettings);
@@ -194,7 +198,8 @@ void eepromOperation(bool save) {
         }
         EEPROM.commit();
 
-    } else {
+    }
+    else {
         EEPROM.get(address, appSettings);
         address += sizeof(s_appSettings);
         for (int i = 0; i < 15; i++) {
@@ -205,7 +210,7 @@ void eepromOperation(bool save) {
     EEPROM.end();
 
 
-    
+
 }
 
 char* alarmtoString(s_alarm alarm) {
@@ -301,12 +306,12 @@ void updateAlarm() {
 }
 
 void tryConnectToSavedWiFi() {
-    Serial.println("Sprawdzanie połączenia z siecią WiFi");
+    Serial.println(F("Sprawdzanie połączenia z siecią WiFi"));
     const char* ssid = appSettings.ssid;
     const char* password = appSettings.password;
-    Serial.print("Laczenie z siecia WiFi: ");
+    Serial.print(F("Laczenie z siecia WiFi: "));
     Serial.print(ssid);
-    Serial.print(" Haslo: ");
+    Serial.print(F(" Haslo: "));
     Serial.println(password);
 
     WiFi.begin(ssid, password);
@@ -315,11 +320,11 @@ void tryConnectToSavedWiFi() {
         delay(1000);
         timeout++;
         if (timeout == 5) {
-            Serial.println("Nie udało się połączyć z siecią WiFi");
+            Serial.println(F("Nie udało się połączyć z siecią WiFi"));
             return;
         }
     }
-    Serial.println("Połączono z siecią WiFi");
+    Serial.println(F("Połączono z siecią WiFi"));
     gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, ssid);
 
 }
@@ -333,10 +338,10 @@ bool connectToWiFi(int index) {
         if (timeout == 5) {
             return false;
             gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Error");
-            Serial.println("Nie udało się połączyć z siecią WiFi");
+            Serial.println(F("Nie udało się połączyć z siecią WiFi"));
         }
     }
-    Serial.println("Połączono z siecią WiFi");
+    Serial.println(F("Połączono z siecią WiFi"));
     gslc_ElemSetTxtStr(&m_gui, m_Conn_Status, "Polaczono");
     gslc_ElemSetTxtStr(&m_gui, m_SSID_TO_CONNECT, WiFi.SSID().c_str());
     gslc_ElemSetTxtStr(&m_gui, m_IP, WiFi.localIP().toString().c_str());
@@ -407,4 +412,159 @@ bool checkAlarms() {
         }
     }
     return false;
+}
+
+WiFiClient client;
+
+//https/ssl wifi client
+BearSSL::WiFiClientSecure clientSecure;
+BearSSL::Session tlsSession;
+
+
+String now() {
+    time_t epochTime = timeClient.getEpochTime();
+    struct tm* ptm = gmtime(&epochTime);
+    char buffer[80];
+    strftime(buffer, 80, "%Y-%m-%dT%H:%M:%S.000Z", ptm);
+    Serial.println(buffer);
+    return String(buffer);
+}
+
+
+void getAlarmsFromGoogleCalendarSecure() {
+
+    if (WiFi.status() == WL_CONNECTED) {
+        // Build the request URL
+        String url = "https://www.googleapis.com/calendar/v3/calendars/";
+        url += calendar_id;
+        url += "/events?&key=";
+        url += client_secret;
+        url += "&alwaysIncludeEmail=false";
+        url += "&prettyPrint=false";
+        url += "&alt=json";
+        url += "&fields=items(start(dateTime),%20end(dateTime),%20summary,%20recurrence)";
+
+        Serial.println(url);
+        clientSecure.setInsecure();
+        clientSecure.setBufferSizes(1024, 1024);
+        clientSecure.setTimeout(5000);
+        
+        Serial.println("Connecting to server");
+        if (clientSecure.connect("www.googleapis.com", 443)) {
+            Serial.println("Connected to server");
+            clientSecure.println("GET " + url + " HTTP/1.1");
+            clientSecure.println("Host: www.googleapis.com");
+            clientSecure.println("Accept: application/json");
+            clientSecure.println("Connection: close");
+            clientSecure.println();
+            Serial.println("Request sent");
+            delay(10);
+
+
+            unsigned long timeout = millis();
+            while (clientSecure.available() == 0) {
+                if (millis() - timeout > 5000) {
+                    Serial.println(F(">>> Client Timeout !"));
+                    clientSecure.stop();
+                    return;
+                }
+            }
+
+            bool headers = true;
+            char* response = (char*)malloc(1024);
+            long i = 0;
+            while (clientSecure.available()) {
+                char c = clientSecure.read();
+                //response += c;
+                if (headers) {
+                    if (c == '{') {
+                        headers = false;
+                        response[i] = c;
+                    }
+                }
+                else {
+                    i++;
+                    response[i] = c;
+                }
+            }
+            response[i + 1] = '\0';
+
+            Serial.println("I:");
+            Serial.println(i);
+
+            Serial.println("Response:");
+            Serial.println(response);
+
+            // Parse JSON response 
+            const size_t capacity = 1024;
+            DynamicJsonDocument doc(capacity);
+
+
+
+            Serial.println("Deserializing JSON");
+            DeserializationError error = deserializeJson(doc, response);
+            Serial.println("Deserialized");
+            Serial.println("Freeing memory");
+            free(response);
+            Serial.println("Memory freed");
+
+            if (error) {
+                Serial.print(F("deserializeJson() failed: "));
+                Serial.println(error.f_str());
+
+                return;
+            }
+
+            int error_code = doc["error"]["code"];
+            Serial.print(F("Error code: "));
+            Serial.println(error_code);
+
+
+            // Get the number of events
+            int events = doc["items"].size();
+            Serial.print("Number of events: ");
+            Serial.println(events);
+
+            for (int i = 0; i < events; i++) {
+                Serial.print("Event ");
+                Serial.print(i);
+                Serial.println(":");
+                Serial.print("Summary: ");
+                Serial.println(String(doc["items"][i]["summary"]));
+                Serial.print("Start: ");
+                Serial.println(String(doc["items"][i]["start"]["dateTime"]));
+                Serial.print("Weekday: "); // from recurrence
+                Serial.println(String(doc["items"][i]["recurrence"][0]));
+
+                // Get the start time
+                String start = String(doc["items"][i]["start"]["dateTime"]);
+                // get the hour and minute
+                int hour = start.substring(11, 13).toInt();
+                int minute = start.substring(14, 16).toInt();
+
+                // Get the weekday
+                String recurrence = String(doc["items"][i]["recurrence"][0]);
+                int weekday = recurrence.substring(6, 7).toInt();
+
+                Serial.print(hour);
+                Serial.print(":");
+                Serial.print(minute);
+                Serial.print(" : ");
+                Serial.println(days[weekday].c_str());
+
+            }
+
+            // Serial.println();
+            // Serial.println("closing connection");
+        }
+        else {
+            // if you didn't get a connection to the server:
+            Serial.println("connection failed");
+            clientSecure.stop();
+            Serial.println(F("connection failed"));
+        }
+        Serial.println(F("closing connection2"));
+    }
+    Serial.println(F("closing connection"));
+    clientSecure.stop();
 }

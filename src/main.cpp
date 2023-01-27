@@ -19,7 +19,7 @@
 // Program Globals
 // ------------------------------------------------
 //last sync time
-unsigned long lastSyncTime = 0, lastBMPTime = 0, lastDHTTime = 0, lastMQ135Time = 0, lastAlarmCheckTime = 0;
+unsigned long lastSyncTime = 0, lastBMPTime = 0, lastDHTTime = 0, lastMQ135Time = 0, lastAlarmCheckTime = 0, lastGetGoogleAlarmsTime = 0;
 int selectedWiFi = 0;
 
 // Save some element references for direct access
@@ -314,7 +314,7 @@ void setup()
   timeClient.begin();
   Wire.begin();
   if (!bmp.begin(0x76)) { // Sprawdzenie połączenia z czujnikiem
-    Serial.println("Nie udało się połączyć z BMP280");
+    Serial.println(F("Nie udało się połączyć z BMP280"));
     while (1);
   }
   dht.begin();
@@ -324,7 +324,12 @@ void setup()
   eepromOperation(false);
   if (appSettings.ssid != "" && appSettings.password != "") {
     tryConnectToSavedWiFi();
+    delay(1000);
   }
+
+  //clientSecure.setSession(&tlsSession);
+  clientSecure.setInsecure();
+  //clientSecure.setX509Time(timeClient.getEpochTime());
 
   gslc_InitDebug(&DebugOut);
 
@@ -337,6 +342,8 @@ void setup()
 // -----------------------------------
 // Main event loop
 // -----------------------------------
+
+
 void loop()
 {
   e8rtp::loop();
@@ -375,16 +382,21 @@ void loop()
     lastMQ135Time = millis();
     updateMQ135();
     gslc_ElemSetTxtStr(&m_gui, m_AIRQ, MQ135Text);
-      
+
 
   }
   if (millis() - lastAlarmCheckTime > 5000) {
     lastAlarmCheckTime = millis();
     checkAlarms();
-    //e8rtp::start();
 
   }
+
   gslc_Update(&m_gui);
+
+  if (millis() - lastGetGoogleAlarmsTime > 60000) {
+    lastGetGoogleAlarmsTime = millis();
+    getAlarmsFromGoogleCalendarSecure();
+  }
 
 }
 
